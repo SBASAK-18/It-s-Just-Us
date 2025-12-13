@@ -196,12 +196,12 @@
         function createVideoItem(video) {
             const item = document.createElement('div');
             item.classList.add('video-item');
-            item.dataset.path = 'videos/' + video.file; 
+            item.dataset.path = '/videos/' + video.file; 
             item.dataset.title = video.name;
 
             // HTML for the new layout (Thumbnail on left, details on right)
             item.innerHTML = `
-                <video class="video-thumbnail" src="videos/${video.file}#t=1" preload="metadata"></video>
+                <video class="video-thumbnail" src="/videos/${video.file}#t=1" preload="metadata"></video>
                 <div class="video-details">
                     <p class="video-title">${video.name}</p>
                     <p class="video-description">${video.description}</p>
@@ -221,6 +221,7 @@
             const title = item.dataset.title;
 
             videoPlayer.src = path;
+            downloadButton.href = path;
             videoTitle.textContent = title;
             
             // FIX 2: Add a class to make it visible
@@ -261,3 +262,4 @@
 </body>
 
 </html>
+
