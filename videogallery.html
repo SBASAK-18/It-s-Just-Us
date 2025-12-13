@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical Video Gallery</title>
+
+    <style>
+        /* Basic Reset and Body Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        /* Gallery Container: Now a simple vertical list with scrolling */
+        #gallery-container {
+            /* Restrict the gallery width on larger screens */
+            max-width: 900px;
+            margin: 0 auto; 
+            padding: 10px;
+            /* Scrollbar for many items */
+            overflow-y: auto; 
+            max-height: 80vh; /* Set a maximum height to enable scrolling */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+
+        /* Individual Video Item (Main list item) */
+        .video-item {
+            display: flex; /* Aligns content (thumbnail and text) horizontally */
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            border: 1px solid #eee;
+        }
+
+        /* Hover Effect */
+        .video-item:hover {
+            background-color: #e8eaf6; /* Light blue background on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: scale(1.01); /* Slight enlarge effect */
+        }
+
+        /* Video Thumbnail Element */
+        .video-thumbnail {
+            width: 120px; /* Fixed width for the thumbnail */
+            height: 80px; /* Fixed height */
+            object-fit: cover; 
+            border-radius: 4px;
+            background-color: #000;
+            border: none;
+            display: block;
+            flex-shrink: 0; /* Prevents the thumbnail from shrinking */
+        }
+
+        /* Container for Title and Details (Right side) */
+        .video-details {
+            text-align: left;
+            margin-left: 15px;
+            flex-grow: 1; /* Allows the details to take up the remaining space */
+            min-width: 0; /* Important for ellipsis on long titles */
+        }
+
+        .video-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            margin: 0 0 5px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Adds "..." if name is too long */
+        }
+
+        .video-description {
+            font-size: 0.9em;
+            color: #666;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; 
+        }
+
+        /* --- Modal (Pop-up Player) Styles - Reused from previous version --- */
+   /* --- Modal (Pop-up Player) Styles - FIX APPLIED HERE --- */
+        .modal {
+            display: none; /* <-- FIX 1: Ensure it's hidden by default */
+            position: fixed; 
+            z-index: 10; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.9); 
+            /* We'll use a new class 'is-visible' to show it with 'flex' later */
+        }
+
+        /* NEW CLASS: Used by JS to make the modal pop-up and centered */
+        .modal.is-visible {
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        /* Modal Content (Video Player) - Fit to screen fix */
+        .modal video {
+            display: block;
+            max-width: 90vw; 
+            max-height: 90vh; 
+            width: auto;
+            height: auto;
+            margin: 0; 
+        }
+
+        .modal h3 {
+            color: #fff;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* The Close Button */
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>My Local Video Gallery</h1>
+    
+
+    <div id="gallery-container">
+        </div>
+
+    <div id="videoModal" class="modal">
+        <span class="close-button">&times;</span>
+        <video id="videoPlayer" controls autoplay></video>
+        <h3 id="videoTitle"></h3>
+    </div>
+
+    <script>
+        // 1. --- VIDEO LIST DATA ---
+        // I have added a 'description' field for the details you wanted on the right side.
+        // ** YOU MUST UPDATE this entire list with your 40-50 videos **
+        const videoList = [
+            { name: "My First Video", file: "1.mp4", description: "This is my first video." }, 
+            { name: "My Second Video", file: "2.mp4", description: "A review clip." }, 
+            { name: "My Third Video", file: "3.mp4", description: "Highlights from a trip." },
+
+            // Placeholder for your future videos (Example format):
+            { name: "Video Title 4", file: "4.mp4", description: "Pecos/Idle descriptal." },
+            { name: "Video Title 5", file: "5.mp4", description: "Text is very excellent." },
+            
+            // REMEMBER TO ADD YOUR 40-50 VIDEOS HERE!
+        ];
+        // -----------------------------
+
+
+        // 2. --- GALLERY RENDERING LOGIC ---
+        const galleryContainer = document.getElementById('gallery-container');
+        const modal = document.getElementById("videoModal");
+        const videoPlayer = document.getElementById("videoPlayer");
+        const videoTitle = document.getElementById("videoTitle");
+        const closeButton = document.querySelector(".close-button");
+
+
+        // Function to create the HTML for one video item (vertical layout)
+        function createVideoItem(video) {
+            const item = document.createElement('div');
+            item.classList.add('video-item');
+            item.dataset.path = 'videos/' + video.file; 
+            item.dataset.title = video.name;
+
+            // HTML for the new layout (Thumbnail on left, details on right)
+            item.innerHTML = `
+                <video class="video-thumbnail" src="videos/${video.file}#t=1" preload="metadata"></video>
+                <div class="video-details">
+                    <p class="video-title">${video.name}</p>
+                    <p class="video-description">${video.description}</p>
+                </div>
+            `;
+            
+            item.addEventListener('click', openVideoModal);
+
+            return item;
+        }
+
+        // Function to open the pop-up player (Unchanged from previous version)
+        // Function to open the pop-up player (FIX APPLIED)
+        function openVideoModal(event) {
+            const item = event.currentTarget;
+            const path = item.dataset.path;
+            const title = item.dataset.title;
+
+            videoPlayer.src = path;
+            videoTitle.textContent = title;
+            
+            // FIX 2: Add a class to make it visible
+            modal.classList.add('is-visible'); 
+            
+            videoPlayer.play(); 
+        }
+
+        // Function to close the pop-up player (Unchanged from previous version)
+        // Function to close the pop-up player (FIXED for re-opening)
+        function closeVideoModal() {
+            videoPlayer.pause();
+            videoPlayer.src = ""; 
+            
+            // Crucial step: Load empty to truly reset the player element state
+            videoPlayer.load(); 
+            
+            // Remove the class to hide it
+            modal.classList.remove('is-visible'); 
+        }
+
+        // Attach event listeners for closing the modal
+        closeButton.addEventListener('click', closeVideoModal);
+
+        // Close modal if user clicks outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target == modal) {
+                closeVideoModal();
+            }
+        });
+
+        // Loop through the video list and add them to the gallery
+        videoList.forEach(video => {
+            galleryContainer.appendChild(createVideoItem(video));
+        });
+    </script>
+
+</body>
+</html>
