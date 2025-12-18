@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025 Memories</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Dancing+Script:wght@700&family=Cinzel+Decorative:wght@700&display=swap');
+
+        :root {
+            --primary: #00ffff;
+            --secondary: #1a4d4d;
+            --accent: #ff00cc;
+            --background: linear-gradient(135deg, #0f1c2b, #153f4c, #0f1c2b);
+            
+            /* Chat Colors */
+            --dialog-mine-grad-1: #004e92;
+            --dialog-mine-grad-2: #000428;
+            --dialog-other-grad-1: #8E2DE2;
+            --dialog-other-grad-2: #4A00E0;
+
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-hover: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --text-color: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--background);
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-color);
+            position: relative;
+        }
+
+        /* --- FLOATING FLOWERS --- */
+        .flowers-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; z-index: 0; pointer-events: none;
+        }
+        .flower {
+            position: absolute; bottom: -10vh; font-size: 30px; opacity: 0.9;
+            animation: floatUpFlower 15s linear infinite;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+        }
+        @keyframes floatUpFlower {
+            0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
+            10% { opacity: 0.9; }
+            90% { opacity: 0.9; }
+            100% { transform: translateY(-120vh) rotate(360deg) scale(1.2); opacity: 0; }
+        }
+
+        /* --- LAYOUT --- */
+        .container {
+            display: grid; grid-template-columns: 82% 18%; /* NEW: Left is wider, Right is narrower */
+            height: 100vh;
+            position: relative; z-index: 10; transition: grid-template-columns 0.5s ease;
+        }
+        .display-panel, .gallery-panel {
+            background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(8px);
+            border: none; position: relative; overflow: hidden; transition: all 0.3s ease;
+        }
+        .gallery-panel { border-left: 1px solid var(--glass-border); display: flex; flex-direction: column; }
+
+        .container.slideshow-active { grid-template-columns: 100%; }
+        .container.slideshow-active .gallery-panel { display: none; }
+        .container.slideshow-active .display-footer { display: none; }
+        .container.slideshow-active .btn-home { display: none; }
+
+        /* Full Screen Image Slider */
+        .image-slider-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95); z-index: 200;
+            display: none; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .image-slider-overlay.active { display: flex; }
+        .slider-img-container {
+            position: relative; max-width: 90%; max-height: 80%;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .slider-img {
+            max-width: 100%; max-height: 100%; object-fit: contain;
+            border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .slider-nav-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(0, 255, 255, 0.2); color: var(--primary);
+            border: 1px solid var(--primary); padding: 15px; cursor: pointer;
+            font-size: 2rem; z-index: 210; border-radius: 50%; transition: all 0.3s;
+        }
+        .slider-nav-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--primary); }
+        #slider-prev { left: -60px; }
+        #slider-next { right: -60px; }
+        #slider-close {
+            position: absolute; top: 20px; right: 20px; font-size: 2.5rem;
+            background: rgba(0,0,0,0.5); border-radius: 50%; width: 50px; height: 50px;
+            display: flex; justify-content: center; align-items: center;
+            border: 1px solid var(--primary); color: var(--primary); cursor: pointer; transition: 0.3s;
+        }
+        #slider-close:hover { background: var(--primary); color: #000; transform: rotate(90deg); }
+
+        /* --- DISPLAY CONTENT --- */
+        .display-panel { display: flex; justify-content: center; align-items: center; padding: 30px; }
+        .content-box {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 40px; width: 95%; height: 95%;
+            transition: all 0.5s ease; opacity: 0; transform: translateY(20px);
+            position: relative; overflow: hidden; display: flex; flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .content-box.active { opacity: 1; transform: translateY(0); }
+
+        .main-heading {
+            font-family: 'Dancing Script', cursive; font-size: 3.5rem; color: var(--primary);
+            text-shadow: 0 0 15px var(--primary), 0 0 5px #fff; margin-bottom: 25px; flex-shrink: 0;
+        }
+
+        /* Page Layouts */
+        .layout-image-text { display: flex; gap: 30px; height: 100%; align-items: center; }
+        .layout-image-text img {
+            max-width: 45%; max-height: 80vh; object-fit: cover;
+            border-radius: 15px; flex-shrink: 0; transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); cursor: pointer;
+        }
+        .layout-image-text img:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--primary); }
+        
+        .container.slideshow-active .layout-image-text img { max-width: 60%; }
+        .layout-image-text.birthday-layout img { max-width: 65%; }
+        .container.slideshow-active .layout-image-text.birthday-layout img { max-width: 75%; }
+
+        .text-content { 
+            flex-grow: 1; overflow-y: auto; padding-right: 10px; 
+
+            /* NEW FONT STYLES */
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;            /* Slightly bigger */
+            line-height: 1.8;             /* More space between lines */
+            font-weight: 400;
+            letter-spacing: 0.5px;        /* Clean look */
+            color: #e0e0e0;               /* Slightly softer white */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8); /* Better contrast against background */
+        }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 6px; }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, var(--secondary), var(--primary)); 
+            border-radius: 6px; border: 2px solid rgba(0,0,0,0.3);
+        }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        /* Chat Styles */
+        .chat-container { height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding: 10px 10px 60px 10px; flex-grow: 1; }
+        .message-row { display: flex; width: 100%; opacity: 0; animation: fadeInMsg 0.5s forwards; }
+        @keyframes fadeInMsg { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message-mine { justify-content: flex-end; }
+        .message-other { justify-content: flex-start; }
+        
+        .chat-bubble {
+            max-width: 70%; padding: 15px 20px; border-radius: 20px; font-size: 1.1rem;
+            line-height: 1.5; box-shadow: 0 5px 15px rgba(0,0,0,0.4); position: relative;
+            color: #fff; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .message-mine .chat-bubble {
+            background: linear-gradient(135deg, var(--dialog-mine-grad-1), var(--dialog-mine-grad-2));
+            border-bottom-right-radius: 2px; border-left: 3px solid #00c6ff;
+        }
+        .message-other .chat-bubble {
+            background: linear-gradient(135deg, var(--dialog-other-grad-1), var(--dialog-other-grad-2));
+            border-bottom-left-radius: 2px; border-right: 3px solid #ff00cc;
+        }
+        .speaker-name { font-weight: bold; display: block; margin-bottom: 8px; font-size: 0.9rem; text-transform: uppercase; }
+        .message-mine .speaker-name { color: #00c6ff; text-align: right; }
+        .message-other .speaker-name { color: #ff00cc; text-align: left; }
+
+        /* List Styles (Page 5) */
+        .typing-list-container {
+            height: 100%; overflow-y: auto; padding-right: 15px; flex-grow: 1;
+            display: flex; flex-direction: column; gap: 25px;
+        }
+        .list-item { font-size: 1.1rem; line-height: 1.6; opacity: 0; animation: fadeInMsg 0.5s forwards; }
+        .list-item-header { font-weight: bold; color: var(--primary); display: block; margin-bottom: 5px; font-size: 1.2rem; }
+        .list-item-text { display: block; }
+
+        /* Gallery Grids */
+        .group-gallery { height: 100%; overflow-y: auto; padding: 10px 0; flex-grow: 1; }
+        .photo-group { margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 15px; border: 1px solid var(--glass-border); }
+        .group-title { font-size: 1.8rem; color: var(--primary); margin-bottom: 15px; font-family: 'Dancing Script', cursive; }
+        .group-thumbnails { display: flex; flex-wrap: wrap; gap: 15px; }
+        .group-thumbnails img { width: 120px; height: 120px; object-fit: cover; border-radius: 10px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
+        .group-thumbnails img:hover { transform: scale(1.1) rotate(2deg); border-color: var(--primary); }
+
+        .image-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; height: 100%; overflow-y: auto; padding: 10px; flex-grow: 1; }
+        .image-grid img { width: 100%; height: 200px; object-fit: cover; border-radius: 15px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
+        .image-grid img:hover { transform: scale(1.05); border-color: var(--primary); }
+
+        /* Final Page */
+        .final-page-content { display: flex; justify-content: center; align-items: center; height: 100%; flex-direction: column; }
+        .end-text {
+            font-family: 'Cinzel Decorative', cursive; font-size: 5rem; text-align: center;
+            background: linear-gradient(45deg, var(--primary), var(--accent), var(--primary));
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+            animation: textShine 3s infinite linear, pulseEnd 2s infinite ease-in-out;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+        @keyframes textShine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+        @keyframes pulseEnd { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        /* Right Panel */
+        .gallery-header { padding: 25px; text-align: center; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.1); flex-shrink: 0; }
+        .gallery-header h3 { font-family: 'Montserrat', sans-serif; font-size: 1.6rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
+        .gallery-container { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        
+        .thumbnail-page {
+            height: 70px; background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 12px; cursor: pointer; display: flex; justify-content: center; align-items: center;
+            font-size: 1.8rem; font-weight: bold; position: relative; overflow: hidden; flex-shrink: 0;
+            /* NEW TRANSITION FOR SMOOTHNESS */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+
+        /* NEW HOVER EFFECT */
+        .thumbnail-page:hover {
+            transform: scale(1.05) translateX(-5px); /* Grows and moves slightly */
+            background: rgba(0, 255, 255, 0.15);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent), inset 0 0 10px rgba(0,255,255,0.2);
+            z-index: 10;
+        }
+                .thumbnail-page::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(5px); z-index: 1;
+        }
+        .page-number { z-index: 2; color: var(--primary); text-shadow: 0 0 10px var(--primary); }
+        .thumbnail-page.active { border-color: var(--primary); box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); background: rgba(0, 255, 255, 0.1); }
+        
+        .gallery-footer { padding: 20px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); flex-shrink: 0; }
+
+        /* Buttons */
+        .styled-btn {
+            background: linear-gradient(45deg, var(--secondary), var(--primary)); border: none;
+            color: #fff; padding: 12px 20px; border-radius: 30px; cursor: pointer; transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif; font-weight: bold; text-transform: uppercase;
+            letter-spacing: 1px; box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3); position: relative; overflow: hidden; z-index: 1; font-size: 0.8rem;
+        }
+        .styled-btn::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 0%; height: 100%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary)); transition: all 0.3s; z-index: -1; border-radius: 30px;
+        }
+        .styled-btn:hover::before { width: 100%; }
+        .styled-btn:hover { box-shadow: 0 0 25px var(--primary); transform: translateY(-2px); }
+
+        /* Back to Home Button */
+        .btn-home {
+            position: absolute; top: 20px; left: 20px; text-decoration: none; display: inline-block;
+            background: rgba(255,255,255,0.1); border: 1px solid var(--primary); color: var(--primary);
+            padding: 8px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;
+            transition: all 0.3s; z-index: 50; backdrop-filter: blur(5px);
+        }
+        .btn-home:hover {
+            background: var(--primary); color: #000; box-shadow: 0 0 10px var(--primary);
+        }
+
+        /* Slideshow Controls */
+        .display-footer { position: absolute; bottom: 30px; right: 40px; z-index: 20; }
+        .btn-slideshow-main { padding: 15px 35px; font-size: 1.1rem; background: linear-gradient(45deg, var(--accent), var(--primary)); }
+        
+        .slideshow-controls {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.9); padding: 8px 15px; border-radius: 50px;
+            display: none; align-items: center; gap: 10px; border: 1px solid var(--primary);
+            z-index: 100; box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); backdrop-filter: blur(10px);
+        }
+        .slideshow-controls.show { display: flex; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { transform: translate(-50%, 50px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        
+        .progress-bar { width: 120px; height: 5px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); width: 0%; box-shadow: 0 0 15px var(--primary); transition: width 0.1s linear; }
+
+        .warning-text { color: #ff4444; font-weight: bold; font-size: 0.8rem; min-width: 90px; text-align: center; }
+
+        /* Confetti */
+        .confetti-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; display: none; overflow: hidden; }
+        .confetti-layer.active { display: block; }
+        .confetti-piece {
+            position: absolute; top: -20px; width: 12px; height: 25px; opacity: 0.9;
+            animation: fall linear infinite; box-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+        @keyframes fall {
+            0% { transform: translateY(-20px) rotate(0deg) skewX(0deg); opacity: 1; }
+            50% { transform: translateY(50vh) rotate(360deg) skewX(20deg); }
+            100% { transform: translateY(110vh) rotate(720deg) skewX(0deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="flowers-container" id="flowers-bg"></div>
+
+    <div class="container" id="main-container">
+
+        <section class="display-panel">
+            <a href="index.html" class="btn-home">← Back to Homepage</a>
+
+            <div id="confetti-layer" class="confetti-layer"></div>
+            
+            <div class="image-slider-overlay" id="image-slider-overlay">
+                <button id="slider-close" onclick="closeSlider()">✖</button>
+                <div class="slider-img-container">
+                    <img src="" alt="Full View" id="slider-img" class="slider-img">
+                </div>
+                <button class="slider-nav-btn" id="slider-prev" onclick="navigateSlider(-1)">⟵</button>
+                <button class="slider-nav-btn" id="slider-next" onclick="navigateSlider(1)">⟶</button>
+            </div>
+
+            <div id="content-box" class="content-box"></div>
+
+            <div class="display-footer">
+                <button class="styled-btn btn-slideshow-main" onclick="startSlideshow()">▶ Play Slideshow</button>
+            </div>
+
+            <div class="slideshow-controls" id="ss-controls">
+                <span id="ss-warning" class="warning-text"></span>
+                <div class="progress-bar"><div class="progress-fill" id="ss-progress"></div></div>
+                <button class="styled-btn" onclick="togglePause()" id="btn-pause" style="padding: 5px 12px; font-size: 0.75rem;">Pause</button>
+                <button class="styled-btn" onclick="stopSlideshow()" style="background: linear-gradient(45deg, #ff4444, #cc0000); padding: 5px 12px; font-size: 0.75rem;">Exit</button>
+            </div>
+        </section>
+
+        <section class="gallery-panel">
+            <div class="gallery-header">
+                <h3>Our Journey</h3>
+            </div>
+            <div class="gallery-container" id="gallery-scroller"></div>
+            <div class="gallery-footer">
+                <button class="styled-btn" onclick="changePage(-1)">Previous</button>
+                <button class="styled-btn" onclick="changePage(1)">Next</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const PRESENTATION_DATA = [
+            { id: 1, type: 'image-text', title: 'An Unseen Wish', image: 'images/1.jpg', content: 'I have told you to block me for sometime so that i can send this wish🙂.As i did not know about your feelings clearly then.' },
+            { id: 'new-page', type: 'image-text', title: 'Holi 2025', image: 'images/holi25.jpg', content: 'A Multi-Colored Beautiful Vut.😁' 
+            },
+            { id: 2, type: 'typing-paragraph', title: 'My Birthday Wish', content: "Aaaah.....waiseee tooo humari jaaan pehchaan haai bohot diiin hogayeee Almost 4-5 years I guess.....But I think in last few months it's a little bit better.....matlab jaaan pehchaan thodaa thodaa jyada hoogayaa shayad....🙂‍↕pehlee itnaaa nahii thaaa I think....In this duration kavii kavii maai annoying vii laag saktii hoon ....., kaviii rude vii laag saktii hoon...., kavii immature vii laag saktii hoon .....kavii haad see jyadaa mature viii laag saktii hoon .....kavii buriii vii laag saktii hoon....kaviii kaviii by anyyy chance achhi viii laag saktiii hoon.....( Bol nahii sakte 😂😎....Ab maai utnaa vii khaaas nahii...🙂‍↕) matlaab whatever it is ..... I'm just like thaaat......Biin baat keee maai gyaan kaa pahaad viii khool detiii hoon .....if you know you know.....💀😂Haaan Tooh inmesee kuch achha lagaa hoo kavii .....then thanks mee for thaat ....😎aaur kaviii kisimee buraa lagaa hoo tooo Yeaaah sorry for that....🙃Then come to next point.....you are intelligent , you have a sharp mindset....and you have done very good in life....I agree with that....But personally I think.....you have much much more courage and potential then this.....may be there are some circumstances or situation kii huum joo chahtee haai woo nahii hota har waqt....But I think you have that capability to do a far better then that .... Sometimes the situation moves like that we disappoint every one.... specially our parents.....And you should be fell bad about that .....then  you also have to ensure that the reason behind their smile will be you one day......✨ So now focus on your life the way you want to build it .... focus on your own people .....make them happy.....and rest everything else will come out automatically....and a gentle reminder....*faltu bekaar jinis e doyaa koree mathha lagaben naah time waste hooy ....ageeo ami bolchhi apnakee ....apni patta deen naah ....🙂And yeaah as usual.....Amii abar successfully 1 baltiii gyaaaan diyee diyechhi .....🙂‍↕😂And lastly Yeaaah .....aur kuch mahine.... fir nayee loog nayaa environment , naya  achha saab Kuch aajayegaa ......good wishes for that ....🙃🙌🏻And I wish you can achieve your All goals and dreams....And if ever you need some help or something from mee....tooh Yeaah I'm theree....I will try my best to doo......(Bakii kaa maai too har waqt kuch bool nahii saktiii .....mujheee vii haddi banna nahii pasand you know😅) ....And finally Yeaaah ..... Happyyyyy Birthday....🤍 Have a great year ahead.....!!" },
+            { id: 3, type: 'image-text', title: 'Meetup 2025', image: 'images/3.jpg', content: 'In the month of July 2025 a very super-planned (planning continued for more than 2 weeks😂) meetup happened. After so much time i saw you.🤷‍♂️ ' },
+            { id: 4, type: 'typing-dialogue', title: 'A Little Upgradation By YOU', dialogue: [
+                { speaker: 'Ankur', text: 'Thoda to explain karo .... Kya rehta hain aapke uss secret mobile diary mein ? ' },
+                { speaker: 'Gultu', text: 'Matlab waise hii ....may be I can not explain....ki kaisee insecurities atee hai mujhmee...🙂🙂🤧 Dimaag maai laga naa to nahii chahti parr ho jata haai ...!! 😅😅Bakii terii achhi hii batein rehti haai sabkuchh ....😅😅🙃🙌🏻 Kii maai hii problematic baan jatii hoon khud shayad ....🙂😅😅🤧' },
+                { speaker: 'Gultu', text: 'Aab pata nahii kyaa bolnaa chahiye kyaa nahii .....paar merii isse pehle kisise itnii batein nahii huyii vaai ....mainee  itnaa attention diyaa vii nahii tujhse pehle kisiko ....huyaa hi nahii ....😅Pehla hii haai tui I guess.... jisse maai itnaa free ho payii ....😅😅 Joo baas mujhee hii attention detaa haai ... importance detaa haai....too uss hisaab se thoda alaag too lagtaa hii hai tujhee....😅😅🙂‍↕🙌🏻And yeah shayad you are the one jiskee liyee maine first vagwan see itnii pray karii puree saal ....idk whyy ....pehle Kisike itnaa kiyaa nahii kavii ....isme baas hogaya apne aap ...pata nahii kyuu  ....😅😅 Aisee baas hai bohot sarii chizee ...baas apnee aap hogayii ....😅😅 Reason mujhee vii pata nahii haai ...😅😅' },
+                { speaker: 'Ankur', text: 'Thanks ❤‍🩹Aaj thoda important lag rha hain finally khudko 😅😅🤧🙏🏻Ab tak to a little bit one sided lagta tha 😅😅U know ek din maine roya bhi tha iske liye raat ko overthinking karke 😅, aansu bhi aye the thodese' },
+                { speaker: 'Gultu', text: 'Aab itnaaa important maat feel kara mujhee ....🙂🤧🤧 Mujhee ismee vii ansuu ajatee haai kii yee itnaa kyuu sochta haai meree liye...🥹🤧🤧' },
+                { speaker: 'Gultu', text: 'Matlab mujhee khud vi samajh nahii ataa kii kyuu haai ..... clearly mujhee padna nahii thaa insab maai.... tendency hii wahii thii .....kii jitnaa vi kuchh hojayee baas nahii chahiye mujhee yee sab....🙂🤧 Paar tunee effort itnaa de diyaa kii  woo chize thodi alag hogayii....🙂😅😅' },
+                
+            ]},
+            { 
+                id: 5, 
+                type: 'typing-list', 
+                title: 'My Ratings (according to YOU)', 
+                items: [
+                    { bold: '1: Loyality', text: 'Avii taak too thik hii lagtaa haai ....aisaa kuchh alaag lagtaa nahii too ok "10/10" ....baad kaa pata nahii....' },
+                    { bold: '2: Sense of Humour', text: 'also achhaaa.... it iss "8.5 or 9 / 10" ' },
+                    { bold: '3: Texting Speed', text: 'medium "7/10"' },
+                    { bold: '4: Drama', text: 'jyada kartaa too nahii ....woo too meraa kaam haai I know...🙂‍↔🙂‍↔ Too "3/10" ' },
+                    { bold: '5: Care Level', text: 'acha haai shayad ...par dikhata nahii jyadaa ...too mujhee dikhtaa nahii too 8/10 ....diikh jata too achhi miiil jata marks yaha vii ...😒😒🤧' },
+                    { bold: '6: Realness', text: 'good "10/10" waisee joo dikhata haai asaal mee vii wahii honaa chahiye...agar kabhi woo nahii huyaa taab dekhnaaa....😒😒😤' },
+                    { bold: '7: Jealousy', text: 'yeee aaj vii kuuchhh jyadaaa hii dikhhh gayiii...😁😂🤣🤣🤣Too yee wala "100/10" 😂🤣🤣🤣' },
+                    { bold: '8: Trustworthy', text: '"10/10" aab ... pehlee thoda kaam lagtaa thaa....😂😂 Cause I am thoda thoda sondeho batik you know....😂😂🤣 Too aab thik haai achha haaii...😁😁🙂‍↔🙌🏻' },
+                    { bold: '9: Irritating', text: 'kartaa haai ...paar buraa nahii lagtaa ....ye rate nahi kaar sakte....🤧 Irritate karegaa vii too vii mujhee hii karna chahiye...🙂‍↔🙂‍↔😒 Dusroo koo nahii ...😒🤧 Auur agar kisiko vii karna haai too mere paas wapas maat anaa....😒😒😤' },
+                    { bold: '10: Kindness', text: '"10/10".....mere samne too full on rehtaa haai ab bakii ka .... matlab dusro kee samne idk....🤷🏻‍♀🙂‍↔' },
+                    { bold: '11: Handling Capability', text: 'achha haai "10/10"....khush too kaar detaa haai....🙂‍↔🙂‍↔ Mood vi change kaar detaa haai .Filhaal kuchh dino see jyadaa...😁baas gussa tuu handle kaar nahii pataa too mujhee hii thik karna padta hai khud....🤷🏻‍♀🤷🏻‍♀🤧' },
+                    { bold: '12: Ego Level', text: 'meree samnee nahii dikhata.....too idk ...mujhee dikhaa nahii kavii...🤷🏻‍♀🤷🏻‍♀ Dikhana chahiye vii nahiii....😒😒 Mujhee pasand nahii ki meree samnee egoo koo jyada priority dee...🤧😤😤 I do not like...🤷🏻‍♀🤷🏻‍♀' },
+                    { bold: '13: Tolerance', text: 'mujhee jhelnee kii baat agar kar rahii haai ....to "10/10" ....mujhee jhelnaa is not so easy....🤷🏻‍♀🤷🏻‍♀😂🤣  Nakhre bohot haai ...😎😎 Avii tak zindaa haai wahii kafii haai ....itnaa vii rehna nahii chahiye thaa....🙃🙃 Aab ageka pata nahii...🤷🏻‍♀🤷🏻‍♀😂' },
+                    { bold: '14: Sensitivity', text: 'maai hii dikhaa detii hoon itnaa too teraa kaam hoo jata haai...🙂🙂🤧 But still kavii buraa lagtaa hai merese I know....but express vii karta nahii ...khud samval letaa haai too kaam hi haai mujhse too "7/10"' },
+                    { bold: '15: Importance', text: 'Agar terii importance meree liyee bolu to ...too haai tuu important...😅😅 Banaa liyaa haai jagaah thoda bohot...🙃🙃 Fikar vii hoti haai terii... chinta vii karta hoon ....achha vii chahti huu....terii chizoo see mood vii hota haai upaar nichhe ....too baan too gaya haai important...😂😅🙂‍↔🙌🏻' },
+                    { bold: '--End-- ', text: '------' },
+                ]
+            },
+            { id: 6, type: 'image-text', title: 'Happy 20th Birthday!💖', image: 'images/6.jpg', content: 'A very special day of the year☺️.In this day, An alien landed on this earth.😁', isBirthday: true, layout: 'birthday' },
+            { id: 7, type: 'typing-dialogue', title: 'Your Birthday Wish (Another Upgradation By ME)', dialogue: [
+                { speaker: 'Ankur', text: 'Achha aaj to meri birthday girl se baat ho rhi hain 🙃🙃1st of all HAPPY BIRTHDAY TO YOU SOURIKA 🥳🥳🎂🎂Wish you have a many many happy returns of the day 🥳Bohut saal jiyoo akdm aage ki zindagi achha guzre, wo main nhi bhi guzrega to bhi theek kar dunga koi naah 🙃Aise hi humesha mere dill pe maharani ban kar raaj karte raho ....... Abhi to theek hain baadme fees lagenge humko 🌝😋💀Bohut socha ki bolu ya na bolu ...... Chalo dill bol rha hain bol Dene ke liye 🙂🙃1.5 saal pehle bola tha kuch tab ha thoda bohut attraction tha I think lekin dheere dheere kala jaadu tune karr hi diya abtoo 🫠🫠 so yeah ......." I love you "..... 🤧🤍Main tujhpar koi pressure nhi daal rha , waise bhi today is your special day aaj to busy hoga tu bohut ...... I do not want any answer main chahta bhi nhi tu meri gf ban ja agar hoga to wo time aane par dekha jayega  ...... I am just letting you know so that tu overthinking thoda kam kare ....... Jodio mujhe difference nhi pata between like and love but still pehle Aisa tha ki agar tune mana nhi karr diya to bhi ho jata mera lekin abhi nhi ho sakta , Mujhe nahi pata tha ki ghar ka ehsaas kya hota hai utne achhe se kyuki shayad main sabke samne hi introvert hu also in front of my parents, but tujhe pata nhi main sab bol deta hu . You know tujhe sab kuch bolkar ek alag sa sukoon milta hain and yeah tujhe khud bhi nhi pata tu mere liye kitna zaroori bann gaya hain ab 🙃🙃Teri har ek cheez even tere hisab se jo buri hain wo sab bhi mujhe achhi hi lagti hain 🙂‍↔🙂‍↔Jab tu mujhpar gussa ya shaq karti hain tab bhi bohut achha lagta hain ...... In that time I am a self esteem booster 😅but I love it cause isse hi pata chalta hain tum kitni gehri insaan hoo ...... Aajkal ke zamane mein tum jaisi ladki sachme bohut hi rare hota hain 🤧 sabko aisi hi ladki mile but tum ab sabke paas to nhi Jaa sakti to Mera hi reh jao bass 🙃🙃Ab aate hain IAS waale dream par. Jab bhi tum demotivate hoti ho, toh yeh baat sun lo: India ko wohi log chahiye jo itne sensitive ho...... Tumhara innocent dil hi tumhein best officer banayega, kyuki tum logon ka dard samajh paogi. Tumhari yeh choti-choti doubts hi tumhe sahi decision lene par majboor karengi. Tum padhai mein aag ho, mehnat mein no. 1 ho, bass oije gaa-dheela diyen na khali 😌 always yaad rakhna I will support you and I am proud of you my sherni !! 🤍🫂Now I can use the proper word 😁It is the day I get to celebrate not just the person I love, but the most astonishingly beautiful soul I have ever encountered.And I am not a kuch din ka mehman type bohut dheet banda hu , Main kitna bhi successful ho jau par mere side mein main humesha tujhe hi dekhna chahta hu bass ....... Intezar to humesha tera hi rahega aana ya na aana wo teri marzi 🙂🙃🙃So, let`s celebrate today. Let`s celebrate the most gorgeous, innocent, pure-hearted, sensitive, and magnificent woman I know. You are my everything, my greatest adventure🤍. Thank you for making my life endlessly better just by existing in it.Once again Happy Birthday, my future IAS officer, my girl.' },
+                { speaker: 'Gultu', text: 'Ummm huuuummmm.....bujhlaaaam.....😁😁🙂‍↕ Waiseee likhnaaa achhaaa sikhayaa haai maineee .....🙂‍↔🙂‍↔ Bohoot kuchhh liikh diyaa isnee tooo....🫠😚😚 I`m bohoottt hii jyadaaa blushing you know.....😁 A lots of Thaaaaaaank yooooouuuu....... 😁🤍  You`re myyyy most favourite person nooooowww.....🙂‍↔🫠 You know thaaat mainee kavii sochaa nahii thaaa kiii mereee life mee aisaa kuchh hogaa....I mean maai honee dungiiii....entry vii nahii dungiiii.....itnii khadooosss thii shayaad ....😂😂 Paar haa kooi agar zaraa mujhee samajhnee kii koshish kareee...too shayaad woo alaag hogaa....jaisee teree samnee dikhaa detii hoon shayad sabkuch without anyyy thinking without anyyyy hesitation....😁🙂‍↕ Aisiiii jabardast unexpected entryyy liiyaa haai tuneee....😒 Kyaa batayee auur huum kuchh kaar hii nahii payeee....🙂‍↔ Wahii maai most of the time sochti hoon ....sourika is it you ..!? 😂 Tuuu kaar rahii haai yee saab....😂 Badaaal too diyaa haai shayad tunee .... though pehlee kuchh batati nahii thiii .....haa I try to control...nahii nahii yee nahii kaar sakte ....paar jisdin see woo thodaa bata diyaa humnee uskee baad itnaaa  free hogayiii kii meraaa muuh ruktaa hii nahii....😂🤣🤣 Kuchhh vii hojayee baas joo vii maan meee ayeee baaak deee isss pagaal keee samneee ....baas maai wahii kaar detiii hoon...😅🙃 Aaab itnii duur agayaa haai too janaaa too nahii chahiye...🙂🤧 Though logo kee liyee yee phase 2 haftee maai vii ajata haai iykyk...💀😂 Humare meee yehii itnaa time laag gayaaa .....😂🤣 paar aab ayaa haai tooo maaat janaaa please....!! 🥹🤧 Aisee hii humesha mujhee satatee rehnaaa....🙂‍↔Once agaaaain Thaaaaaank yooouuu...!! 💗  Best wish rahegaa yee mereee liyeee....😁🫠  Auuurrr itnaaa patience badhaa hii diyaa haai mainee teraaa too thodaa auur vii kaar intezaar karleee .....woo khaaas answer huum achhee seee badmee dengee....taab dhire dhire teraa patience auur vii baadh jayegaa I think....!! 🙂‍↔🙃🙌🏻 Paar milegaa too tujhee hii milegaa .....🙃🙌🏻' },
+                
+            ]},
+            { id: 8, type: 'group-gallery', title: 'DURGAPUJA 2025', groups: [
+                { name: 'Saptami', images: ['images/A1.jpg', 'images/A2.jpg'] },
+                { name: 'Astami', images: ['images/B1.jpg', 'images/B2.jpg', 'images/B3.jpg'] },
+                { name: 'Navami', images: ['images/C1.jpg', 'images/C2.jpg'] },
+                { name: 'Dasami', images: ['images/D1.jpg', 'images/D2.jpg'] }
+            ]},
+            { id: 9, type: 'image-text', title: 'Kalipuja 2025', image: 'images/9.jpg', content: 'After missing the DurgaPuja Meetup, attended this one.But still an wish of my heart remained incomplete cause you went to home early.😞' },
+            { id: 10, type: 'fullscreen-slider', title: 'Random Click (In order to complete my demands😁😁)', images: ['images/10A.jpg', 'images/10B.jpg', 'images/10C.jpg', 'images/10D.jpg', 'images/10E.jpg', 'images/10F.jpg'] },
+            { id: 11, type: 'final-page', title: 'Conclusion' },
+            { id: 12, type: 'image-text', title: '--- SAPTARSHI BASAK', image: 'images/12.jpeg', content: 'A very few days left until 2026 , I just want to say that I`m glad I met you🥰' } // Page 12 (Added for exit rule)
+        ];
+        
+        // --- TIMERS ---
+        const GLOBAL_DURATION = 8000;
+        const FAST_DURATION = 3000;
+        
+        let currentIndex = 0;
+        let isSlideshowActive = false;
+        let isPaused = false;
+        let slideshowTimer, progressInterval, typingInterval;
+        let sliderImages = [], sliderCurrentIndex = 0;
+        let imageCycleIndex = 0; 
+
+        const D = {
+            container: document.getElementById('main-container'),
+            galleryContainer: document.getElementById('gallery-scroller'),
+            contentBox: document.getElementById('content-box'),
+            ssControls: document.getElementById('ss-controls'),
+            progressBar: document.getElementById('ss-progress'),
+            warningText: document.getElementById('ss-warning'),
+            confettiLayer: document.getElementById('confetti-layer'),
+            sliderOverlay: document.getElementById('image-slider-overlay'),
+            sliderImg: document.getElementById('slider-img'),
+            sliderPrev: document.getElementById('slider-prev'),
+            sliderNext: document.getElementById('slider-next'),
+            flowersBg: document.getElementById('flowers-bg')
+        };
+
+        function init() {
+            // Flowers
+            const flowerEmojis = ['🌸', '🌼', '🌺', '🌻', '🌹', '🌷'];
+            for(let i=0; i<35; i++) {
+                let flower = document.createElement('div');
+                flower.className = 'flower';
+                flower.innerHTML = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
+                flower.style.left = Math.random() * 100 + 'vw';
+                flower.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                flower.style.animationDelay = Math.random() * 10 + 's';
+                flower.style.fontSize = (Math.random() * 25 + 20) + 'px';
+                D.flowersBg.appendChild(flower);
+            }
+            // Thumbnails
+            PRESENTATION_DATA.forEach((item, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = 'thumbnail-page';
+                thumb.onclick = () => selectPage(index);
+                thumb.innerHTML = `<span class="page-number">${index + 1}</span>`;
+                thumb.id = `thumb-${index}`;
+                D.galleryContainer.appendChild(thumb);
+            });
+            selectPage(0);
+        }
+
+        function selectPage(index, isAutoAdvance = false) {
+            clearInterval(typingInterval);
+            D.contentBox.innerHTML = '';
+            D.contentBox.classList.remove('active');
+            D.confettiLayer.classList.remove('active');
+            D.sliderOverlay.classList.remove('active');
+
+            if (isSlideshowActive && !isAutoAdvance) stopSlideshow();
+
+            currentIndex = index;
+            const pageData = PRESENTATION_DATA[index];
+            
+            document.querySelectorAll('.thumbnail-page').forEach(t => t.classList.remove('active'));
+            const activeThumb = document.getElementById(`thumb-${index}`);
+            if(activeThumb) {
+                activeThumb.classList.add('active');
+                activeThumb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // Render Content
+            setTimeout(() => {
+                renderPageContent(pageData);
+                if (pageData.isBirthday) manageConfetti(true);
+                else manageConfetti(false);
+                D.contentBox.classList.add('active');
+                
+                if (isSlideshowActive) {
+                    if (index === 7) { 
+                        imageCycleIndex = 0;
+                        collectAllGroupImages();
+                        openSlider(0);
+                        runSlideTimer(GLOBAL_DURATION, true);
+                    } 
+                    else if (index === 9) {
+                        imageCycleIndex = 0;
+                        sliderImages = pageData.images;
+                        openSlider(0);
+                        runSlideTimer(FAST_DURATION, true);
+                    }
+                    else if (pageData.type.includes('typing')) {
+                        // Wait for typing to finish
+                    }
+                    else {
+                        runSlideTimer(GLOBAL_DURATION, false);
+                    }
+                }
+            }, 300);
+        }
+
+        function collectAllGroupImages() {
+            sliderImages = [];
+            PRESENTATION_DATA[7].groups.forEach(g => {
+                g.images.forEach(img => sliderImages.push(img));
+            });
+        }
+
+        function changePage(direction) {
+            let newIndex = currentIndex + direction;
+            if (newIndex >= PRESENTATION_DATA.length) newIndex = 0;
+            else if (newIndex < 0) newIndex = PRESENTATION_DATA.length - 1;
+            selectPage(newIndex, true);
+        }
+
+        function renderPageContent(pageData) {
+            const box = D.contentBox;
+            box.innerHTML = '';
+            box.className = 'content-box'; 
+
+            switch (pageData.type) {
+                case 'image-text':
+                    const layoutClass = pageData.layout === 'birthday' ? 'birthday-layout' : '';
+                    // Click to enlarge single image
+                    box.innerHTML = `<div class="layout-image-text ${layoutClass}"><img src="${pageData.image}" onclick="openSingleImage('${pageData.image}')"><div class="text-content"><h1 class="main-heading">${pageData.title}</h1><p>${pageData.content}</p></div></div>`;
+                    break;
+                case 'typing-paragraph':
+                    box.innerHTML = `<h1 class="main-heading">${pageData.title}</h1><p id="typing-output" class="typing-paragraph"></p>`;
+                    typeWriter(pageData.content, document.getElementById('typing-output'), 0, false);
+                    break;
+                case 'scroll-typing':
+                    box.innerHTML = `<h1 class="main-heading">${pageData.title}</h1><div id="scroll-container" class="scroll-typing-container"><p id="typing-output" class="typing-paragraph"></p></div>`;
+                    typeWriter(pageData.content, document.getElementById('typing-output'), 0, true);
+                    break;
+                case 'typing-list':
+                    box.innerHTML = `<h1 class="main-heading">${pageData.title}</h1><div id="list-container" class="typing-list-container"></div>`;
+                    typeWriterList(pageData.items, document.getElementById('list-container'));
+                    break;
+                case 'typing-dialogue':
+                    box.innerHTML = `<h1 class="main-heading">${pageData.title}</h1><div id="chat-box" class="chat-container"></div>`;
+                    typeWriterDialogue(pageData.dialogue, document.getElementById('chat-box'));
+                    break;
+                case 'group-gallery':
+                    box.innerHTML = `<h1 class="main-heading">${pageData.title}</h1><div class="group-gallery" id="group-gallery"></div>`;
+                    const gallery = document.getElementById('group-gallery');
+                    let imgCounter = 0;
+                    sliderImages = [];
+                    pageData.groups.forEach(group => {
+                        let groupHtml = `<div class="photo-group"><div class="group-title">${group.name}</div><div class="group-thumbnails">`;
+                        group.images.forEach((img) => {
+                            groupHtml += `<img src="${img}" onclick="collectAllGroupImages(); openSlider(${sliderImages.length});" alt="${group.name}">`;
+                            sliderImages.push(img);
+                        });
+                        groupHtml += `</div></div>`;
+                        gallery.innerHTML += groupHtml;
+                    });
+                    break;
+                case 'fullscreen-slider':
+                    // 1. Render the Heading and the Grid Container
+                    box.innerHTML = `<h1 class="main-heading">${pageData.title}</h1><div class="image-grid" id="image-grid"></div>`;
+                    
+                    const grid = document.getElementById('image-grid');
+                    
+                    // 2. Set the global sliderImages to the current page's images immediately
+                    sliderImages = pageData.images;
+
+                    // 3. Loop through images and add them to the grid
+                    pageData.images.forEach((img, index) => {
+                        // We use 'currentIndex' instead of a hardcoded number like [9].
+                        // This ensures it works even if you add/remove pages later.
+                        grid.innerHTML += `
+                            <img src="${img}" 
+                            onclick="sliderImages = PRESENTATION_DATA[currentIndex].images; openSlider(${index})" 
+                            alt="Gallery Image">`;
+                    });
+                    break;
+                case 'final-page':
+                    box.innerHTML = `<div class="final-page-content"><h1 class="end-text">End of year 2025</h1></div>`;
+                    break;
+            }
+        }
+
+        // --- TYPING ANIMATIONS ---
+        
+        // 1. Simple Paragraph
+        function typeWriter(text, output, index, autoScroll) {
+            clearInterval(typingInterval);
+            currentTypingIndex = index;
+            typingInterval = setInterval(() => {
+                if (currentTypingIndex < text.length) {
+                    output.textContent += text.charAt(currentTypingIndex);
+                    currentTypingIndex++;
+                    if (autoScroll) {
+                        const container = document.getElementById('scroll-container');
+                        if(container) container.scrollTop = container.scrollHeight;
+                    }
+                } else {
+                    clearInterval(typingInterval);
+                    if (isSlideshowActive) runSlideTimer(GLOBAL_DURATION, false);
+                }
+            }, 30);
+        }
+
+        // 2. Chat Dialogue
+        function typeWriterDialogue(dialogue, chatBox) {
+            let msgIndex = 0;
+            clearInterval(typingInterval);
+            function showNextMsg() {
+                if (msgIndex < dialogue.length) {
+                    const msg = dialogue[msgIndex];
+                    const row = document.createElement('div');
+                    const isMine = ['admin', 'gultu', 'me'].includes(msg.speaker.toLowerCase());
+                    row.className = `message-row message-${isMine ? 'mine' : 'other'}`;
+                    row.innerHTML = `<div class="chat-bubble"><span class="speaker-name">${msg.speaker}</span><span id="text-${msgIndex}"></span></div>`;
+                    chatBox.appendChild(row);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                    let charIndex = 0;
+                    const textSpan = document.getElementById(`text-${msgIndex}`);
+                    const msgInterval = setInterval(() => {
+                        if (charIndex < msg.text.length) {
+                            textSpan.textContent += msg.text.charAt(charIndex); charIndex++; chatBox.scrollTop = chatBox.scrollHeight;
+                        } else {
+                            clearInterval(msgInterval); msgIndex++; setTimeout(showNextMsg, 1000);
+                        }
+                    }, currentIndex === 6 ? 15 : 40);
+                } else {
+                    if (isSlideshowActive) runSlideTimer(GLOBAL_DURATION, false);
+                }
+            }
+            showNextMsg();
+        }
+
+        // 3. Typing List for Page 5
+        function typeWriterList(items, container) {
+            let itemIndex = 0;
+            clearInterval(typingInterval);
+
+            function showNextItem() {
+                if (itemIndex < items.length) {
+                    const item = items[itemIndex];
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    
+                    const header = document.createElement('span');
+                    header.className = 'list-item-header';
+                    header.textContent = item.bold;
+                    
+                    const body = document.createElement('span');
+                    body.className = 'list-item-text';
+                    body.id = `list-text-${itemIndex}`;
+
+                    div.appendChild(header);
+                    div.appendChild(body);
+                    container.appendChild(div);
+                    container.scrollTop = container.scrollHeight;
+
+                    let charIndex = 0;
+                    const msgInterval = setInterval(() => {
+                        if (charIndex < item.text.length) {
+                            body.textContent += item.text.charAt(charIndex); charIndex++;
+                        } else {
+                            clearInterval(msgInterval);
+                            itemIndex++;
+                            setTimeout(showNextItem, 500);
+                        }
+                    }, 20);
+                } else {
+                    if (isSlideshowActive) runSlideTimer(GLOBAL_DURATION, false);
+                }
+            }
+            showNextItem();
+        }
+
+        // --- SLIDESHOW LOGIC ---
+        function startSlideshow() {
+            if(isSlideshowActive) return;
+            isSlideshowActive = true; isPaused = false;
+            D.container.classList.add('slideshow-active');
+            D.ssControls.classList.add('show');
+            document.getElementById('btn-pause').innerText = 'Pause';
+            selectPage(currentIndex, true);
+        }
+
+        function runSlideTimer(duration, isImageCycling) {
+            let startTime = Date.now();
+            clearInterval(progressInterval); clearTimeout(slideshowTimer);
+            D.progressBar.style.width = '0%';
+            D.warningText.innerText = "";
+
+            progressInterval = setInterval(() => {
+                if(isPaused) { startTime = Date.now() - (duration * (parseFloat(D.progressBar.style.width)/100)); return; }
+                
+                let elapsed = Date.now() - startTime;
+                let pct = (elapsed / duration) * 100;
+                D.progressBar.style.width = pct + '%';
+
+                let remaining = Math.ceil((duration - elapsed) / 1000);
+                if (remaining <= 5 && remaining > 0) {
+                    D.warningText.innerText = `Next image in ${remaining}...`;
+                } else {
+                    D.warningText.innerText = "";
+                }
+
+                if(elapsed >= duration) {
+                    clearInterval(progressInterval);
+                    
+                    if (isImageCycling) {
+                        imageCycleIndex++;
+                        if (imageCycleIndex < sliderImages.length) {
+                            openSlider(imageCycleIndex);
+                            runSlideTimer(duration, true);
+                        } else {
+                            closeSlider();
+                            changePage(1);
+                        }
+                    } else {
+                        // CHECK IF LAST PAGE (ID:12, Index:11)
+                        if (currentIndex >= PRESENTATION_DATA.length - 1) {
+                            stopSlideshow(); // Auto-Exit on Page 12 completion
+                        } else {
+                            changePage(1);
+                        }
+                    }
+                }
+            }, 50);
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            document.getElementById('btn-pause').innerText = isPaused ? "Play" : "Pause";
+        }
+
+        function stopSlideshow() {
+            isSlideshowActive = false; isPaused = false;
+            clearInterval(progressInterval); clearTimeout(slideshowTimer); clearInterval(typingInterval);
+            D.container.classList.remove('slideshow-active');
+            D.ssControls.classList.remove('show');
+            D.progressBar.style.width = '0%';
+            D.warningText.innerText = "";
+            closeSlider();
+            selectPage(currentIndex, false);
+        }
+
+        // --- SLIDER (Updated for Single Images) ---
+        function openSingleImage(src) {
+            sliderImages = [src]; // Array of 1
+            D.sliderPrev.style.display = 'none'; // Hide arrows
+            D.sliderNext.style.display = 'none';
+            openSlider(0);
+        }
+
+        function openSlider(index) { 
+            // If it's a gallery/slider (more than 1 image), ensure arrows are shown
+            if (sliderImages.length > 1) {
+                D.sliderPrev.style.display = 'block';
+                D.sliderNext.style.display = 'block';
+            }
+            sliderCurrentIndex = index; 
+            D.sliderOverlay.classList.add('active'); 
+            updateSliderImage(); 
+        }
+
+        function closeSlider() { D.sliderOverlay.classList.remove('active'); }
+        
+        function navigateSlider(dir) {
+            sliderCurrentIndex += dir;
+            if (sliderImages.length > 1) {
+                if (sliderCurrentIndex >= sliderImages.length) sliderCurrentIndex = 0;
+                else if (sliderCurrentIndex < 0) sliderCurrentIndex = sliderImages.length - 1;
+            }
+            updateSliderImage();
+        }
+        function updateSliderImage() { if (sliderImages.length > 0) D.sliderImg.src = sliderImages[sliderCurrentIndex]; }
+        document.addEventListener('keydown', function(e) {
+            // Check if the slideshow is NOT active (optional, remove check if you want it to work during slideshow too)
+            if (e.key === 'ArrowLeft') {
+                changePage(-1); // Left Arrow = Previous
+            } else if (e.key === 'ArrowRight') {
+                changePage(1);  // Right Arrow = Next
+            }
+        });
+        function manageConfetti(active) {
+            D.confettiLayer.innerHTML = '';
+            if(!active) { D.confettiLayer.classList.remove('active'); return; }
+            D.confettiLayer.classList.add('active');
+            const colors = ['#FFD700', '#FF0000', '#00FF00', '#0000FF', '#FF00FF', '#00FFFF'];
+            for(let i=0; i<70; i++) {
+                const ribbon = document.createElement('div');
+                ribbon.classList.add('confetti-piece');
+                ribbon.style.left = Math.random() * 100 + '%';
+                ribbon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                ribbon.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                ribbon.style.animationDelay = (Math.random() * 5) + 's';
+                D.confettiLayer.appendChild(ribbon);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2024 Memories</title>
+    <style>
+        /* --- FONTS & VARS --- */
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600&family=Poppins:wght@300;400;600;900&display=swap');
+
+        :root {
+            --primary: #ffcc00; /* Gold */
+            --accent: #ff007f; /* Hot Pink */
+            --bg-gradient: linear-gradient(135deg, #2e003e, #5c0052, #2e003e); /* Deep Purple/Pink */
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-main: #ffffff;
+            --chat-me: linear-gradient(135deg, #662D8C, #ED1E79); 
+            --chat-other: linear-gradient(135deg, #F2994A, #F2C94C); 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: var(--bg-gradient);
+            height: 100vh;
+            overflow: hidden; 
+            color: var(--text-main);
+            position: relative;
+        }
+
+        /* --- BACKGROUND EFFECTS --- */
+        .hearts-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; z-index: 0; pointer-events: none;
+        }
+        .heart {
+            position: absolute; bottom: -10vh; font-size: 20px; color: rgba(255, 105, 180, 0.4);
+            animation: floatUp 15s linear infinite; text-shadow: 0 0 5px rgba(255,105,180,0.6);
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            20% { opacity: 0.8; }
+            100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
+        }
+
+        /* --- LAYOUT --- */
+        .container {
+            display: grid;
+            grid-template-columns: 22% 78%;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+            transition: all 0.5s ease;
+        }
+
+        .container.slideshow-active { grid-template-columns: 0% 100%; }
+        .container.slideshow-active .gallery-panel { transform: translateX(-100%); opacity: 0; }
+        .container.slideshow-active .btn-home { display: none; } 
+
+        /* --- LEFT PANEL --- */
+        .gallery-panel {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--glass-border);
+            display: flex; flex-direction: column;
+            height: 100vh;
+            z-index: 5;
+        }
+        .gallery-header {
+            padding: 20px; text-align: center; flex-shrink: 0;
+            font-family: 'Dancing Script', cursive; font-size: 2rem; color: var(--primary);
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .gallery-list {
+            flex-grow: 1; overflow-y: auto; padding: 20px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .thumb-item {
+            padding: 15px; background: var(--glass); border-radius: 12px;
+            border: 1px solid transparent; cursor: pointer; text-align: center;
+            font-size: 1rem; font-weight: 600; transition: 0.3s; color: #eee;
+        }
+        .thumb-item:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+        .thumb-item.active {
+            border-color: var(--accent); background: rgba(255, 0, 127, 0.3);
+            box-shadow: 0 0 15px var(--accent); color: #fff;
+        }
+        .gallery-footer {
+            padding: 20px; border-top: 1px solid var(--glass-border);
+            display: flex; justify-content: center; gap: 15px;
+            flex-shrink: 0; background: rgba(0,0,0,0.3);
+        }
+
+        /* --- RIGHT PANEL --- */
+        .display-panel {
+            position: relative;
+            padding: 20px 40px;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh;
+        }
+
+        /* Content Box */
+        .content-box {
+            background: rgba(20, 0, 30, 0.75);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            width: 100%; 
+            height: 90%; 
+            padding: 30px 40px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            display: flex; flex-direction: column;
+            opacity: 0; transform: scale(0.95); transition: 0.5s;
+            overflow: hidden;
+        }
+        .content-box.active { opacity: 1; transform: scale(1); }
+
+        /* --- TYPOGRAPHY (Updated for Date) --- */
+        .header-section {
+            flex-shrink: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 5px;
+            width: 100%;
+            display: flex;              /* New: Flexbox */
+            justify-content: space-between; /* Space out left and right */
+            align-items: flex-end;      /* Align to bottom of line */
+        }
+
+        .main-heading {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem; 
+            color: var(--primary); 
+            margin: 0;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.6); 
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+
+        .header-date {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-left: 20px;     /* Ensure space between text and date */
+            white-space: nowrap;   /* Don't let date break lines */
+            margin-bottom: 5px;    /* Slight lift above line */
+            text-shadow: 0 0 5px rgba(255, 0, 127, 0.5);
+        }
+        
+        .paragraph-text { 
+            font-size: 1.2rem; line-height: 1.7; color: #e0e0e0; font-weight: 400;
+        }
+
+        /* Style for dates on the sides of images */
+        
+
+        /* --- PAGE LAYOUTS --- */
+        /* 1. Container - Reduced gap */
+        .dual-photo-container {
+            display: flex;
+            gap: 5px; /* Reduced gap between elements */
+            flex: 1;
+            min-height: 0;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 5px;
+            height: 100%; /* Ensure it takes full height */
+        }
+
+        /* 2. The Images - MUCH BIGGER */
+        .dual-photo {
+            /* Removed fixed vh sizes */
+            height: 100%; /* Fills 90% of the available vertical space */
+            width: auto; /* Maintains the image aspect ratio */
+            max-width: 45%; /* Ensures they don't get too wide and overlap */
+            object-fit: contain; /* Ensures the whole image is visible */
+            
+            /* Keep existing styles */
+            border-radius: 15px;
+            cursor: zoom-in;
+            border: 3px solid #fff;
+            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            flex-shrink: 1; /* Allows them to shrink slightly if needed */
+        }
+        /* Hover effect stays the same */
+        .dual-photo:hover { transform: scale(1.02) rotate(-1deg); border-color: var(--accent); z-index: 2; }
+        .dual-photo:nth-child(4):hover { transform: scale(1.02) rotate(1deg); }
+
+        /* 3. Middle Text - Compacted */
+        .center-text {
+            /* Removed flex: 1 so it doesn't stretch unnecessarily */
+            flex: 0 1 auto; 
+            text-align: center;
+            color: #fff;
+            font-size: 1.1rem;
+            padding: 0 5px; /* Reduced padding */
+            font-family: 'Quicksand', sans-serif;
+            max-width: 150px; /* Keeps the text area narrow */
+        }
+
+        /* 4. Side Dates - Reduced margin */
+        .side-date {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem; /* Slightly smaller font to save space */
+            color: var(--accent);
+            font-weight: 900;
+            margin: 0 2px; /* Minimal margin */
+            text-shadow: 0 0 5px rgba(255, 0, 127, 0.5);
+            white-space: nowrap;
+        }
+
+        /* Zoom Effect */
+        .fullscreen-img { transition: transform 0.3s ease; cursor: zoom-in; }
+        .fullscreen-img.zoomed { transform: scale(1.8); cursor: zoom-out; }
+        
+        /* --- NEW STYLES FOR SCROLLABLE IMAGE --- */
+
+        /* The container that acts as the scrollable window */
+        .scroll-img-wrapper {
+            height: 90%; /* Same height as the normal left image */
+            width: 45%;  /* Same width constraint */
+            overflow-y: auto; /* Shows scrollbar only if needed */
+            overflow-x: hidden; /* Hides horizontal scrollbar */
+            border-radius: 15px;
+            border: 3px solid #fff;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.2); /* Slight dark background behind image */
+            
+            /* Makes scrollbar look nicer (Chrome/Safari/Edge) */
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) rgba(0,0,0,0.3);
+        }
+
+        /* Custom scrollbar styling for Webkit browsers */
+        .scroll-img-wrapper::-webkit-scrollbar { width: 8px; }
+        .scroll-img-wrapper::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 4px; }
+        .scroll-img-wrapper::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+        /* The actual long image inside the wrapper */
+        .long-scrollable-img {
+            width: 100%; /* Makes it wide enough to read */
+            height: auto; /* Lets it be as long as it needs to be */
+            display: block; /* Removes tiny gap at bottom */
+            cursor: zoom-in; /* Keeps zoom feature */
+        }
+        .img-text-layout { 
+            display: flex; gap: 40px; flex: 1; min-height: 0; 
+            align-items: center; 
+            flex-direction: row;
+        }
+        .img-text-layout img { 
+            max-height: 100%; max-width: 45%; object-fit: contain;
+            border-radius: 20px; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1);
+        }
+        .img-text-layout img:hover { transform: scale(1.02); border-color: var(--primary); }
+        .text-side { 
+            flex: 1; overflow-y: auto; padding-right: 10px; max-height: 100%;
+        }
+        .layout-big img { max-width: 50%; } 
+
+        /* Chat Styles */
+        .chat-container { 
+            flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+            gap: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 15px;
+        }
+        .msg-row { display: flex; width: 100%; opacity: 0; animation: fadeUp 0.5s forwards; }
+        .msg-left { justify-content: flex-start; } .msg-right { justify-content: flex-end; }
+        
+        .chat-bubble { max-width: 70%; padding: 15px 25px; border-radius: 25px; font-size: 1.1rem; position: relative; }
+        .msg-left .chat-bubble { background: var(--chat-other); border-bottom-left-radius: 5px; color: #000; font-weight: 500; }
+        .msg-right .chat-bubble { background: var(--chat-me); border-bottom-right-radius: 5px; color: #fff; }
+
+        /* Speaker Name Label */
+        .speaker-label {
+            font-size: 0.95rem; font-weight: 900; text-transform: uppercase;
+            margin-bottom: 5px; display: block; letter-spacing: 1px; opacity: 1;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1); font-family: 'Poppins', sans-serif;
+        }
+        .msg-left .speaker-label { color: #5b2c6f; text-align: left; }
+        .msg-right .speaker-label { color: #ffd700; text-align: right; }
+
+        .chat-link-btn { display: inline-block; margin-top: 5px; padding: 5px 15px; background: #fff; color: #d63384; border-radius: 15px; text-decoration: none; font-weight: bold; font-size: 0.9rem; }
+        .video-btn { display: inline-block; padding: 12px 30px; margin: 15px 0; background: var(--accent); color: white; text-decoration: none; border-radius: 30px; font-weight: bold; transition: 0.3s; }
+        .video-btn:hover { background: #fff; color: var(--accent); transform: scale(1.05); }
+
+        /* 1. The Container: Controls how many images fit in a row */
+        /* 1. The Container: Controls the grid */
+        .grid-gallery {
+            display: grid;
+            /* ⭐ CHANGED: 
+               - '100px' makes them VERY SMALL (like a phone gallery view).
+               - 'auto-fill' prevents them from stretching big if you have few photos. 
+               - 'justify-content: center' centers the whole group on the screen.
+            */
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            gap: 10px; 
+            padding: 20px;
+            justify-content: center; /* Keeps the small grid centered */
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        /* 2. The Images: Forces Square Shape */
+        .grid-gallery img {
+            width: 100%;
+            aspect-ratio: 1/1;   /* ⭐ Forces perfect square */
+            object-fit: cover;   /* Crops neatly */
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        /* Hover Effect */
+        .grid-gallery img:hover {
+            transform: scale(1.1); /* Popping effect */
+            z-index: 2;
+            box-shadow: 0 0 15px var(--accent);
+        }
+        .end-page { text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100%; }
+        .end-title { font-family: 'Dancing Script', cursive; font-size: 6rem; background: linear-gradient(to right, #ffcc00, #ff007f); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulse 2s infinite; }
+
+        /* --- BUTTONS --- */
+        .nav-btn { 
+            background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255,255,255,0.2); 
+            color: white; padding: 12px 30px; border-radius: 30px; cursor: pointer; 
+            transition: all 0.3s ease; font-size: 1.1rem; font-weight: 600; font-family: 'Quicksand', sans-serif;
+        }
+        .nav-btn:hover { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 20px var(--accent); transform: translateY(-3px); }
+
+        .btn-home {
+            position: absolute; top: 15px; left: 20px; z-index: 50;
+            padding: 10px 25px; border: 2px solid var(--primary);
+            color: var(--primary); text-decoration: none; border-radius: 30px;
+            font-weight: bold; font-size: 1rem; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); transition: 0.3s;
+        }
+        .btn-home:hover { background: var(--primary); color: #000; box-shadow: 0 0 25px var(--primary); transform: scale(1.05); }
+
+        .main-play-btn { 
+            background: linear-gradient(45deg, var(--accent), #ff5e62); border: none; 
+            padding: 15px 40px; border-radius: 40px; color: white; font-size: 1.2rem;
+            font-weight: bold; cursor: pointer; box-shadow: 0 5px 20px rgba(255, 0, 127, 0.5); transition: 0.3s;
+        }
+        .main-play-btn:hover { transform: scale(1.1); box-shadow: 0 0 30px var(--accent); }
+
+        .ss-controls { position: absolute; bottom: 30px; right: 40px; display: flex; gap: 20px; align-items: center; z-index: 50; }
+        .ss-bar-container { background: rgba(0,0,0,0.9); padding: 10px 20px; border-radius: 50px; display: flex; gap: 15px; align-items: center; border: 1px solid var(--primary); opacity: 0; pointer-events: none; transition: 0.3s; }
+        .ss-bar-container.active { opacity: 1; pointer-events: all; }
+        .timer-text { color: var(--primary); font-weight: bold; min-width: 130px; text-align: center; font-size: 1rem; }
+
+        /* --- EXTRAS --- */
+        .fullscreen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: none; justify-content: center; align-items: center; flex-direction: column; }
+        .fullscreen-overlay.active { display: flex; }
+        .fullscreen-img { max-width: 95%; max-height: 90%; border-radius: 15px; box-shadow: 0 0 50px rgba(255,255,255,0.1); }
+        .close-fs { position: absolute; top: 30px; right: 30px; font-size: 3.5rem; color: var(--primary); cursor: pointer; background: none; border: none; transition: 0.3s; }
+        .close-fs:hover { transform: rotate(90deg) scale(1.2); color: #fff; }
+        
+        .confetti-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; display: none; overflow: hidden; }
+        .confetti-layer.active { display: block; }
+        .confetti-piece { position: absolute; top: -20px; width: 10px; height: 25px; opacity: 0.9; animation: fall linear infinite; box-shadow: 0 0 5px rgba(255,255,255,0.5); }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 5px; border: 2px solid rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+
+    </style>
+</head>
+<body>
+
+    <div class="hearts-bg" id="hearts-container"></div>
+
+    <div class="fullscreen-overlay" id="fs-overlay">
+        <button class="close-fs" onclick="closeFullscreen()">×</button>
+        <img src="" id="fs-img" class="fullscreen-img" onclick="this.classList.toggle('zoomed')">
+    </div>
+
+    <div class="container" id="main-layout">
+        <section class="gallery-panel">
+            <div class="gallery-header">Our Journey</div>
+            <div class="gallery-list" id="thumb-list"></div>
+            <div class="gallery-footer">
+                <button class="nav-btn" onclick="changePage(-1)">Previous</button>
+                <button class="nav-btn" onclick="changePage(1)">Next</button>
+            </div>
+        </section>
+
+        <section class="display-panel">
+            <div class="confetti-layer" id="confetti-layer"></div>
+            <a href="index.html" class="btn-home">← Back to HomePage</a>
+            <div class="content-box" id="content-area"></div>
+            <div class="ss-controls">
+                <div class="ss-bar-container" id="ss-bar">
+                    <span class="timer-text" id="countdown-text"></span>
+                    <button class="nav-btn" onclick="togglePause()" id="btn-pause" style="padding: 8px 20px; font-size: 0.9rem;">Pause</button>
+                    <button class="nav-btn" onclick="stopSlideshow()" style="border-color: #ff4444; color: #ff4444; padding: 8px 20px; font-size: 0.9rem;">Exit</button>
+                </div>
+                <button class="main-play-btn" id="btn-play" onclick="startSlideshow()">▶ Play Slideshow</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // --- DATA WITH DATES ADDED ---
+        const DATA = [
+            // Page 1: Dual Photo with Two Dates
+            { id: 1, type: 'dual-photo', dates: ['April 14, 2024', 'April 15, 2024'], title: 'How it Started', text: '11.13pm to 12.15am -- For this duration my heart-beat is as fast as train🙂💀💀', imgs: ['images/x1a.jpg', 'images/x1b.jpg'] },
+            { id: 2, type: 'img-text', date: 'March 25, 2024', title: 'Holi 2025', img: 'images/x2.jpg', text: 'Akee to color uparse chashma🙂. Chenai jachhilo na toke ami to 1st e chintei pari nai 😂🤣' },
+            { id: 3, type: 'img-text', date: 'April 6, 2024', title: 'Mirik Tour', img: 'images/x3.jpg', text: 'A well planned group-photo.✌️' },
+            { id: 4, type: 'img-text', date: 'April 14, 2024', title: 'The Eyes👀', img: 'images/x4.jpg', text: 'A fearsome yet beautiful part of my life.😊' },
+            { id: 5, type: 'chat', date: 'May 14, 2024', title: 'My Birthday Wish', msgs: [
+                { sender: 'her', name: 'Gultu', text: '1 St of all Happiest Birthday to you Saptarshi....🌚✨ Wishing you a many many happy returns of the day👀🌻....!! May god bless you with whatever you want in your life🌈🙌🏻....May your all wishes , desires come true ....!!🌠  I also know , you have a great future ahead 🔥....So work on it and build your own life , with all your dreams, wishes, responsibilities and duties...!!🎐 And I think your 1 St priority should be make your parents proud ....😌💫Soo go for it..🙌🏻Maybe sometimes there will be ups and downs in life🤧...as usual your managing skills are soo good , so i believe you can handle it properly , whatever is going on....🙃👍🏻!! All the best wishes for you ....🌝!! Have a great life ahead ....!! 👀🙌🏻Once again Happy Birthday....!! 🎊 cheers to 18 th ....!!🥂 Happy adulthood....!! 🤍' },
+                { sender: 'her', name: 'Gultu', text: 'I`m still confused between is it today or in 16 th ....soo if it is in 16 th !?🙂 ....then Happy Birthday in advance....!! 🙃' },
+                { sender: 'me', name: 'Ankur', text: 'it`s today .....' },
+                { sender: 'me', name: 'Ankur', text: 'thank u very very much !! 🤍' }
+            ]},
+            
+            { id: 6, type: 'img-text', date: 'May 10, 2024', title: 'Farewell 2024', img: 'images/x5.jpg', text: 'Our last day at DHS😌', big: true },
+            { id: 7, type: 'img-text', date: '', title: 'Farewell Signature', img: 'images/x6.jpg', text: 'Got your signature in my shirt🙂.But still not getting the meaning of that emoji🤷‍♂️' },
+            { id: 8, type: 'img-text', date: 'Oct 6, 2024', title: 'Happy 19th Birthday!💖', img: 'images/x7.jpg', text: 'Wishing you the happiest of birthdays! You deserve the world and more.🤗', big: true, confetti: true },
+            
+            { id: 9, type: 'chat-link', date: 'Oct 6, 2024', title: 'Your Birthday Wish', msgs: [
+                { sender: 'me', name: 'Ankur', text: 'Made a webpage for surprise Birthday wish', hasLink: true, linkText: 'Click to view', linkUrl: 'https://special-mystery.netlify.app/' },
+                { sender: 'her', name: 'Gultu', text: 'Thank you thank you.....🥹🥹🤍Aur kuch bolne wali chiz dimaag maain nahii arahii haain ....😅 What I can say is thank you soo much ....👀' }
+            ]},
+            { id: 10, type: 'img-text', date: '', title: 'Dual Vut', img: 'images/x10.jpg', text: 'Senior and Junior Manjulika ig🤣🤣.' },
+            { id: 11, type: 'img-text', date: 'Oct 31, 2024', title: 'Kalipuja 2024', img: 'images/x11.jpg', text: 'Looookinggg Veryyy Beautiful💕.One of the best images of my collection🥰' },
+            { id: 12, type: 'img-text', date: '', title: 'Your Advice', img: 'images/x12.jpg', text: 'You gave me advice about other girls🙂.I thought why take risks?🤷‍♂️Proposed the Coach💀' },
+            { id: 13, type: 'img-video', date: '', title: 'A cute Puppy-Face', img: 'images/x13.jpg', videoUrl: 'https://drive.google.com/file/d/1FbQJX9DlNE1A2pz9X5--Xxkqbkf0zVAy/view?usp=drive_link', text: 'I know tujhe gussa ayega😂🤣. But sab achhi cheezein thodi na rahegi🙂,it should be unbiased🤣' },
+            { id: 14, type: 'gallery', date: '', title: 'Random Pics', imgs: ['images/1x.jpg', 'images/2x.jpg', 'images/3x.jpg'] },
+            { id: 15, type: 'end', date: 'Dec 31, 2024', title: 'End of 2024', text: 'Here is to another amazing year ahead! The journey continues...Love you💕' }
+        ];
+
+        let currentIndex = 0;
+        let slideTimer, countdownTimer;
+        let isSlideshowActive = false;
+        let isPaused = false;
+        let galleryCycleIndex = 0;
+        const SLIDE_DURATION = 8000;
+
+        const els = {
+            mainLayout: document.getElementById('main-layout'),
+            content: document.getElementById('content-area'),
+            thumbs: document.getElementById('thumb-list'),
+            hearts: document.getElementById('hearts-container'),
+            confettiLayer: document.getElementById('confetti-layer'),
+            overlay: document.getElementById('fs-overlay'),
+            fsImg: document.getElementById('fs-img'),
+            ssBar: document.getElementById('ss-bar'),
+            playBtn: document.getElementById('btn-play'),
+            countdown: document.getElementById('countdown-text'),
+            pauseBtn: document.getElementById('btn-pause')
+        };
+
+        function init() {
+            for(let i=0; i<35; i++) {
+                let h = document.createElement('div'); h.className = 'heart'; h.innerHTML = '❤';
+                h.style.left = Math.random()*100+'%'; h.style.animationDuration = (Math.random()*10+5)+'s'; h.style.animationDelay = Math.random()*5+'s';
+                els.hearts.appendChild(h);
+            }
+            DATA.forEach((d, i) => {
+                let btn = document.createElement('div'); btn.className = 'thumb-item';
+                btn.innerText = `Page ${i+1}`; btn.onclick = () => loadPage(i); btn.id = `thumb-${i}`;
+                els.thumbs.appendChild(btn);
+            });
+            loadPage(0);
+        }
+
+        function loadPage(index) {
+            currentIndex = index;
+            clearInterval(slideTimer); clearInterval(countdownTimer);
+            manageConfetti(false); 
+
+            document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
+            const activeThumb = document.getElementById(`thumb-${index}`);
+            activeThumb.classList.add('active');
+            activeThumb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            els.content.classList.remove('active');
+            setTimeout(() => {
+                renderContent(DATA[index]);
+                if(DATA[index].confetti) manageConfetti(true);
+                els.content.classList.add('active');
+                
+                if (isSlideshowActive) {
+                    if (index === DATA.length - 1) { 
+                        runCountdown(SLIDE_DURATION, stopSlideshow); 
+                    } else if (DATA[index].type === 'gallery' || DATA[index].type === 'dual-photo') {
+                        cycleGallery(index);
+                    } else if (DATA[index].type === 'chat' || DATA[index].type === 'chat-link') {
+                        // Wait for typing to finish
+                    } else {
+                        runCountdown(SLIDE_DURATION, () => changePage(1));
+                    }
+                }
+            }, 300);
+        }
+
+        function changePage(dir) {
+            let next = currentIndex + dir;
+            if(next >= 0 && next < DATA.length) loadPage(next);
+        }
+
+        function renderContent(d) {
+            // --- PART 1: HEADER LOGIC (Edited) ---
+            // If it is 'dual-photo', we set dateHtml to empty string '' (hides it from top).
+            // Otherwise, we create the standard date span.
+            let dateHtml = d.type === 'dual-photo' ? '' : `<span class="header-date">${d.date}</span>`;
+            
+            let html = `<div class="header-section">
+                <h1 class="main-heading">${d.title}</h1>
+                ${dateHtml}
+            </div>`;
+            
+            // --- PART 2: DUAL PHOTO LOGIC (Edited) ---
+            // This is where we added the "side-date" spans
+            // 2. DUAL PHOTO LOGIC (Updated for Scrollable 2nd Image)
+            if (d.type === 'dual-photo') {
+                html += `<div class="dual-photo-container">
+                    <span class="side-date">${d.dates[0]}</span>
+                    
+                    <img src="${d.imgs[0]}" class="dual-photo" onclick="openFullscreen(this.src)">
+                    
+                    <p class="center-text">${d.text}</p>
+                    
+                    <div class="scroll-img-wrapper">
+                        <img src="${d.imgs[1]}" class="long-scrollable-img" onclick="openFullscreen(this.src)">
+                    </div>
+                    
+                    <span class="side-date">${d.dates[1]}</span>
+                </div>`;
+            } 
+            
+            // --- PART 3: THE REST (Unchanged - This is the "last part") ---
+            else if (d.type === 'img-text' || d.type === 'img-video') {
+                let layoutClass = d.big ? 'layout-big' : 'img-text-layout';
+                html += `<div class="img-text-layout ${d.big ? 'layout-big' : ''}">
+                    <img src="${d.img}" onclick="openFullscreen(this.src)">
+                    <div class="text-side">`;
+                
+                if (d.type === 'img-video') html += `<a href="${d.videoUrl}" target="_blank" class="video-btn">▶ Watch the full Video</a>`;
+                
+                html += `<p class="paragraph-text">${d.text}</p></div></div>`;
+            } else if (d.type === 'chat' || d.type === 'chat-link') {
+                html += `<div class="chat-container" id="chat-box"></div>`;
+                setTimeout(() => typeChat(d.msgs, () => {
+                    if(isSlideshowActive) runCountdown(SLIDE_DURATION, () => changePage(1));
+                }), 100);
+            } else if (d.type === 'gallery') {
+                html += `<div class="grid-gallery">`;
+                d.imgs.forEach(src => html += `<img src="${src}" onclick="openFullscreen(this.src)">`);
+                html += `</div>`;
+            } else if (d.type === 'end') {
+                html = `<div class="end-page"><h1 class="end-title">${d.title}</h1><p class="paragraph-text" style="font-size:1.5rem; margin-top:20px;">${d.text}</p></div>`;
+            }
+            
+            // Final Step: Put the HTML into the box
+            els.content.innerHTML = html;
+        }
+
+        function typeChat(msgs, onComplete) {
+            let box = document.getElementById('chat-box'); let i = 0;
+            function nextMsg() {
+                if(i >= msgs.length) {
+                    if(onComplete) onComplete();
+                    return;
+                }
+                let m = msgs[i];
+                let row = document.createElement('div');
+                row.className = `msg-row ${m.sender === 'me' ? 'msg-right' : 'msg-left'}`;
+                let content = m.text;
+                if(m.hasLink) content += `<br><a href="${m.linkUrl}" target="_blank" class="chat-link-btn">${m.linkText}</a>`;
+                
+                let nameHtml = `<span class="speaker-label">${m.name}</span>`;
+                
+                row.innerHTML = `<div class="chat-bubble">${nameHtml}${content}</div>`;
+                box.appendChild(row); box.scrollTop = box.scrollHeight;
+                i++; setTimeout(nextMsg, 1500);
+            }
+            nextMsg();
+        }
+
+        function cycleGallery(index) {
+            galleryCycleIndex = 0; let images = DATA[index].imgs;
+            function nextImg() {
+                if (!isSlideshowActive || currentIndex !== index) return;
+                if (galleryCycleIndex >= images.length) { changePage(1); return; }
+                openFullscreen(images[galleryCycleIndex]); galleryCycleIndex++;
+                slideTimer = setTimeout(() => { closeFullscreen(); setTimeout(nextImg, 500); }, 3000);
+            }
+            nextImg();
+        }
+
+        function manageConfetti(active) {
+            els.confettiLayer.innerHTML = '';
+            if(!active) { els.confettiLayer.classList.remove('active'); return; }
+            els.confettiLayer.classList.add('active');
+            const colors = ['#FFD700', '#FF0000', '#00FF00', '#0000FF', '#FF00FF', '#00FFFF'];
+            for(let i=0; i<50; i++) {
+                const ribbon = document.createElement('div');
+                ribbon.classList.add('confetti-piece');
+                ribbon.style.left = Math.random() * 100 + '%';
+                ribbon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                ribbon.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                ribbon.style.animationDelay = (Math.random() * 5) + 's';
+                els.confettiLayer.appendChild(ribbon);
+            }
+        }
+
+        function startSlideshow() {
+            isSlideshowActive = true; isPaused = false;
+            els.mainLayout.classList.add('slideshow-active'); els.ssBar.classList.add('active');
+            els.playBtn.style.display = 'none'; loadPage(currentIndex);
+        }
+        function stopSlideshow() {
+            isSlideshowActive = false; isPaused = false;
+            clearInterval(slideTimer); clearInterval(countdownTimer);
+            els.mainLayout.classList.remove('slideshow-active'); els.ssBar.classList.remove('active');
+            els.playBtn.style.display = 'block'; els.countdown.innerText = "";
+            closeFullscreen(); loadPage(currentIndex);
+        }
+        document.addEventListener('keydown', function(e) {
+            // Check if the slideshow is NOT active (optional, remove check if you want it to work during slideshow too)
+            if (e.key === 'ArrowLeft') {
+                changePage(-1); // Left Arrow = Previous
+            } else if (e.key === 'ArrowRight') {
+                changePage(1);  // Right Arrow = Next
+            }
+        });
+        function togglePause() {
+            isPaused = !isPaused; els.pauseBtn.innerText = isPaused ? "Resume" : "Pause";
+        }
+        function runCountdown(duration, callback) {
+            let start = Date.now();
+            clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                if (isPaused) { start = Date.now() - (duration - remaining); return; }
+                let elapsed = Date.now() - start;
+                let remaining = duration - elapsed;
+                let seconds = Math.ceil(remaining / 1000);
+                if (seconds <= 5 && seconds > 0) els.countdown.innerText = `Next page in ${seconds}...`;
+                else els.countdown.innerText = "";
+                if (remaining <= 0) { clearInterval(countdownTimer); callback(); }
+            }, 100);
+        }
+
+        function openFullscreen(src) { els.fsImg.src = src; els.overlay.classList.add('active'); }
+        function closeFullscreen() { els.overlay.classList.remove('active'); }
+
+        init();
+    </script>
+</body>
+</html>
