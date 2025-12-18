@@ -3,342 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Digital Diary</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <title>Private Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- CSS Variables --- */
-        :root {
-            --primary-gold: #FFD700;
-            --warm-orange: #FF8C00;
-            --text-white: #ffffff;
-            --dark-glass: rgba(0, 0, 0, 0.2);
-            --glass-border: rgba(255, 215, 0, 0.3);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* 1. FORCE SINGLE PAGE (NO MAIN SCROLL) */
+        /* --- CSS STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Montserrat', sans-serif;
-            height: 100vh; 
-            width: 100vw;
-            overflow: hidden; /* Locks the main page */
-            background-color: #000;
-        }
-
-        /* --- Background Image --- */
-        .bg-image {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            background: url('images/background.jpg') no-repeat center center;
-            background-size: cover;
-        }
-
-        .bg-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: -1;
-        }
-
-        /* --- Main Layout --- */
-        .main-container {
-            width: 90%;
-            max-width: 1300px;
-            height: 100%; 
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column; 
-            padding: 20px 0 40px 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-            color: var(--text-white);
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.9);
-            flex-shrink: 0; /* Header never shrinks */
-        }
-
-        /* --- EDIT FONT SIZES HERE --- */
-
-        /* 1. Main Heading */
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 4rem; /* INCREASED from 3rem */
-            margin-bottom: 5px;
-            letter-spacing: 2px;
-        }
-
-        /* 2. Sub Heading */
-        h2 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.4rem; /* INCREASED from 1rem */
-            font-weight: 400;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            color: #f0e68c;
-        }
-
-        /* --- 3-Column Grid --- */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1.1fr 1fr;
-            gap: 20px;
-            /* Flex settings to fill remaining space */
-            flex-grow: 1; 
-            min-height: 0; /* Important for grid scrolling */
-        }
-
-        /* --- Panels --- */
-        .panel {
-            background: var(--dark-glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100%; /* Fill the grid cell */
-            overflow: hidden; /* Hide anything leaking out */
-            position: relative;
-        }
-
-        /* 3. Box Headings (Separate Life, Journey, Note) */
-        .panel h3 {
-            font-family: 'Dancing Script', cursive;
-            font-size: 2.4rem; /* INCREASED from 1.8rem */
-            margin-bottom: 15px;
-            background: linear-gradient(to right, #FFD700, #FFA500);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
-            position: relative;
-            padding-bottom: 6px;
-            flex-shrink: 0; /* Keep heading fixed */
-        }
-
-        .panel h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px; /* Made underline slightly wider */
-            height: 3px;
-            background: linear-gradient(to right, transparent, var(--primary-gold), transparent);
-            border-radius: 2px;
-        }
-
-        .diary-btn {
-            display: block;
-            width: 100%;
-            padding: 12px 5px;
-            text-align: center;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1rem; /* Slightly larger button text too */
-            text-transform: uppercase;
-            color: #3e2723;
-            background: linear-gradient(90deg, #f6d365 0%, #fda085 100%);
-            border-radius: 30px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
-            margin-bottom: 10px;
-            flex-shrink: 0; /* Buttons don't shrink */
-        }
-
-        .diary-btn:hover {
-            transform: scale(1.02);
-            background: linear-gradient(90deg, #fda085 0%, #f6d365 100%);
-            color: #000;
-        }
-
-        /* --- Left Panel (No Scroll) --- */
-        .left-panel-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-evenly;
-            height: 100%;
-            width: 100%;
-        }
-        
-        .split-section-top, .split-section-bottom {
-            display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            width: 100%;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            background: linear-gradient(-45deg, #000000, #1a0500, #3d0e00, #521500, #701d00);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fff;
         }
-
-        .split-section-top .diary-btn, 
-        .split-section-bottom .diary-btn {
-            width: 90%;
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-
-        .split-divider {
-            height: 1px;
-            background: linear-gradient(to right, transparent, rgba(255, 215, 0, 0.4), transparent);
-            width: 80%;
-            margin: 0 auto;
-            flex-shrink: 0;
+        .clock-panel {
+            position: absolute; top: 30px; left: 40px; text-align: left;
+            font-family: 'Orbitron', sans-serif; text-shadow: 0 0 15px rgba(255, 100, 0, 0.6);
+            animation: fadeInDown 1s ease-out; z-index: 10;
         }
-
-        .sub-heading {
-            color: #ccc;
-            font-size: 0.85rem;
-            margin-bottom: 10px;
-            font-style: italic;
+        .time { font-size: 3rem; font-weight: 700; letter-spacing: 3px; color: #ff6600; line-height: 1; }
+        .date { font-size: 1rem; color: #c77d63; margin-top: 5px; letter-spacing: 2px; text-transform: uppercase; }
+        .login-card {
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 69, 0, 0.2); border-top: 1px solid rgba(255, 69, 0, 0.5);
+            padding: 50px 40px; border-radius: 20px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 1), inset 0 0 30px rgba(0, 0, 0, 0.9);
+            text-align: center; width: 340px; transition: transform 0.3s ease;
         }
-
-        /* --- SCROLLABLE SECTIONS (Middle & Right) --- */
-        
-        .scroll-container, .note-content {
-            /* THE FIX: height: 0 + flex-grow: 1 forces the box to respect limits */
-            height: 0; 
-            flex-grow: 1; 
-            
-            overflow-y: auto; /* Enable Scroll */
-            padding-right: 12px; /* Space for scrollbar */
-            
-            /* Firefox Scrollbar Support */
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary-gold) rgba(255, 255, 255, 0.1);
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 1), 0 0 30px rgba(255, 69, 0, 0.3);
+            border-color: rgba(255, 69, 0, 0.6);
         }
-
-        .scroll-container {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+        h1 {
+            font-family: 'Orbitron', sans-serif; font-weight: 900; color: #ffffff;
+            margin-bottom: 30px; font-size: 26px; letter-spacing: 3px;
+            text-transform: uppercase; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
         }
-
-        .note-content {
-            color: #fceabb;
-            font-size: 1rem;
-            line-height: 1.6;
-            text-align: left;
-            font-weight: 500;
+        input[type="password"] {
+            width: 100%; padding: 15px; margin-bottom: 25px; border-radius: 50px;
+            background: rgba(0, 0, 0, 0.8); color: #ff4500; font-size: 20px;
+            text-align: center; letter-spacing: 8px; outline: none;
+            border: 2px solid rgba(255, 69, 0, 0.4); transition: 0.3s;
+            font-family: 'Orbitron', sans-serif; box-shadow: inset 0 0 10px rgba(0,0,0,1);
         }
-
-        /* --- VISIBLE SCROLLBAR STYLING --- */
-        ::-webkit-scrollbar {
-            width: 14px; /* Thick enough to see */
+        input[type="password"]:hover { border-color: rgba(255, 69, 0, 0.7); }
+        input[type="password"]:focus {
+            border-color: #ff4500; box-shadow: 0 0 25px rgba(255, 69, 0, 0.5), inset 0 0 10px rgba(0,0,0,1);
+            background: rgba(0, 0, 0, 1); color: #ff7700;
         }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.15); /* Visible track */
-            border-radius: 10px;
-            margin-block: 5px;
+        button {
+            width: 100%; padding: 15px; border: none; border-radius: 50px;
+            background: linear-gradient(90deg, #ff3c00, #ff0080); color: #fff;
+            font-size: 18px; font-weight: 900; cursor: pointer; text-transform: uppercase;
+            letter-spacing: 3px; transition: all 0.3s ease; font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 20px rgba(255, 60, 0, 0.7), 0 0 60px rgba(255, 0, 128, 0.4);
+            position: relative; overflow: hidden; animation: buttonPulse 2s infinite;
         }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, var(--primary-gold), var(--warm-orange));
-            border-radius: 10px;
-            border: 3px solid rgba(0, 0, 0, 0.3); /* Adds contrast/padding */
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(255, 60, 0, 1), 0 0 80px rgba(255, 0, 128, 0.8);
+            background: linear-gradient(90deg, #ff5e00, #ff00aa);
         }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-gold);
+        @keyframes buttonPulse {
+            0% { box-shadow: 0 0 20px rgba(255, 60, 0, 0.7), 0 0 40px rgba(255, 0, 128, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(255, 60, 0, 0.9), 0 0 60px rgba(255, 0, 128, 0.6); }
+            100% { box-shadow: 0 0 20px rgba(255, 60, 0, 0.7), 0 0 40px rgba(255, 0, 128, 0.2); }
         }
-
-        /* --- Watermark --- */
+        .message { margin-top: 20px; height: 20px; font-size: 14px; font-weight: bold; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
+        .shake { animation: shake 0.5s; }
+        @keyframes shake {
+            0% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(10px); } 60% { transform: translateX(-10px); } 80% { transform: translateX(10px); } 100% { transform: translateX(0); }
+        }
         .watermark {
-            position: fixed;
-            bottom: 10px;
-            right: 20px;
-            font-family: 'Dancing Script', cursive;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.9rem;
-            z-index: 100;
-            pointer-events: none;
+            position: fixed; bottom: 20px; right: 30px; font-family: 'Rajdhani', sans-serif;
+            font-size: 16px; font-weight: 700; color: #ffaa00; letter-spacing: 2px;
+            text-transform: uppercase; pointer-events: none; padding-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 100, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.6);
+            border-bottom: 2px solid rgba(255, 165, 0, 0.8);
+            animation: watermarkFlicker 4s infinite alternate;
         }
-
-        /* Mobile */
-        @media (max-width: 1024px) {
-            body { height: auto; overflow: auto; }
-            .content-grid { display: block; height: auto; }
-            .panel { height: 450px; margin-bottom: 20px; }
-            .scroll-container, .note-content { height: auto; flex-grow: 0; }
+        @keyframes watermarkFlicker {
+            0% { opacity: 0.8; text-shadow: 0 0 10px rgba(255, 100, 0, 0.8); }
+            100% { opacity: 1; text-shadow: 0 0 20px rgba(255, 165, 0, 1), 0 0 30px #ff4500; }
         }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body onload="initPage()">
 
-    <div class="bg-image"></div>
-    <div class="bg-overlay"></div>
+    <div class="clock-panel">
+        <div class="time" id="clock">00:00:00</div>
+        <div class="date" id="date">Loading Date...</div>
+    </div>
 
-    <div class="main-container">
-        <header>
-            <h1>Our Digital Diary</h1>
-            <h2>Welcome to the Home Page</h2>
-        </header>
-
-        <main class="content-grid">
-            
-            <section class="panel">
-                <div class="left-panel-content">
-                    <div class="split-section-top">
-                        <h3>Our Separate Life Before</h3>
-                        <br>
-                        <a href="before.html" class="diary-btn">Her Life</a>
-                        <a href="ankur.html" class="diary-btn">His Life</a>
-                        
-                    </div>
-                    <div class="split-divider"></div>
-                    <div class="split-section-bottom">
-                        <h3>All of Your Videos</h3>
-                        <p class="sub-heading">They are all in my Google Drive folder</p>
-                        <a href="https://drive.google.com/drive/folders/1BsGuD2plSOCOHvtWs0aMWHySXe8nigPi?usp=drive_link" target="_blank" class="diary-btn">Click to View</a>
-                    </div>
-                </div>
-            </section>
-
-            <section class="panel">
-                <h3>Our Memories</h3>
-                <div class="scroll-container">
-                    <a href="2024.html" class="diary-btn">2024 Memories</a>
-                    <a href="2025.html" class="diary-btn">2025 Memories</a>
-                    
-                </div>
-            </section>
-
-            <section class="panel">
-                <h3>Note</h3>
-                <div class="note-content">
-                    <p>
-                        Whenever a year will come to an end, a new page containing our memories of that year will be uploaded here. I wish that the number of pages increase every year from now on.
-                        <br><br>
-                        You're right, we don't know about the future but you'll always be one of my best and beautiful memories of my life. So I made the digital diary, no one can remove it and anyone can access it with that link. 
-                        <br><br>
-                        We can't change the destiny, but always can give it a try. So if destiny is something else still this website will be active with the memories of each other. Treat this website as a part of me and keep it always with you.
-                        <br><br>
-                        <strong>Keep that link safe, though it's also easy to remember.</strong>
-                        <br><br>
-                        If you want to see the image in full screen just simply left click on it. You can also download the images from here, 1st Right click, 2nd save image as, then save it.
-                        <br><br>
-                        Every button is clickable and will redirect to different webpages, so check out every pages
-                    </p>
-                </div>
-            </section>
-
-        </main>
+    <div class="login-card" id="card">
+        <h1>PRIVATE WEBPAGE</h1>
+        <input type="password" id="pinInput" placeholder="----" maxlength="4" autocomplete="off" autofocus>
+        <button onclick="checkPassword()">Enter</button>
+        <div class="message" id="msg"></div>
     </div>
 
     <div class="watermark">Created by Saptarshi Basak</div>
 
+    <script>
+        // --- CONFIGURATION ---
+        const CORRECT_HASH = "1511273"; 
+        const REDIRECT_URL = "home.html";
+        let canLeavePage = false;
+
+        function initPage() {
+            startTime();
+            floodHistory(); // Initiate the trap
+            document.getElementById("pinInput").focus();
+        }
+
+        // --- THE BLACK HOLE TRAP ---
+        function floodHistory() {
+            // 1. We push the current state 50 times.
+            // This means to get "back" to Home.html, they must click "Leave" 50 times.
+            for(let i = 0; i < 50; i++) {
+                history.pushState(null, document.title, location.href);
+            }
+
+            // 2. If they somehow manage to click back, we push them forward again
+            window.addEventListener('popstate', function () {
+                history.pushState(null, document.title, location.href);
+            });
+
+            // 3. The Browser Warning (The Annoyance)
+            window.onbeforeunload = function() {
+                if (!canLeavePage) {
+                    // This text might be ignored by modern browsers, but the dialog will appear.
+                    return "System Locked. Access Denied.";
+                }
+            };
+        }
+
+        // --- CLOCK ---
+        function startTime() {
+            const today = new Date();
+            let h = today.getHours(); let m = today.getMinutes(); let s = today.getSeconds();
+            let session = "AM";
+            if(h == 0){ h = 12; }
+            if(h > 12){ h = h - 12; session = "PM"; }
+            m = (m < 10) ? "0" + m : m; s = (s < 10) ? "0" + s : s;
+            document.getElementById('clock').innerHTML = h + ":" + m + ":" + s + " <span style='font-size: 1.5rem'>" + session + "</span>";
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date').innerHTML = today.toLocaleDateString("en-US", options);
+            setTimeout(startTime, 1000);
+        }
+
+        // --- HASH GEN ---
+        function generateFingerprint(str) {
+            let hash = 0;
+            if (str.length === 0) return hash;
+            for (let i = 0; i < str.length; i++) {
+                let char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; 
+            }
+            return hash.toString();
+        }
+
+        // --- PASSWORD CHECK ---
+        const inputField = document.getElementById("pinInput");
+        const msgDiv = document.getElementById("msg");
+        const card = document.getElementById("card");
+
+        inputField.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") { checkPassword(); }
+        });
+
+        function checkPassword() {
+            const userPin = inputField.value;
+            const userHash = generateFingerprint(userPin);
+
+            if (userHash === CORRECT_HASH) {
+                // Correct PIN
+                msgDiv.style.color = "#00ff00"; 
+                msgDiv.style.textShadow = "0 0 15px #00ff00, 0 0 30px #00ff00";
+                msgDiv.innerText = "ACCESS GRANTED";
+                card.style.borderColor = "#00ff00";
+                card.style.boxShadow = "0 0 50px rgba(0, 255, 0, 0.5)";
+
+                // *** UNLOCK THE PAGE ***
+                canLeavePage = true;
+                
+                setTimeout(() => { 
+                    window.location.replace(REDIRECT_URL); 
+                }, 1000);
+            } else {
+                // Incorrect PIN
+                msgDiv.style.color = "#ff0000"; 
+                msgDiv.style.textShadow = "0 0 15px #ff0000, 0 0 30px #ff0000";
+                msgDiv.innerText = "INCORRECT PIN";
+                inputField.value = "";
+                card.classList.add("shake");
+                setTimeout(() => { card.classList.remove("shake"); }, 500);
+                inputField.focus();
+            }
+        }
+    </script>
 </body>
 </html>
-
-
-
-
