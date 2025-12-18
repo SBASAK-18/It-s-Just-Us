@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Life Before</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&family=Oswald:wght@700&family=Playfair+Display:ital,wght@1,500&display=swap');
+
+        /* --- General Page Styling --- */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            
+            /* DARK GREEN THEME GRADIENT */
+            background: linear-gradient(-45deg, #093028, #237a57, #0f2027, #2c5364);
+            background-size: 400% 400%;
+            animation: greenGradient 15s ease infinite;
+        }
+
+        @keyframes greenGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Dark Green Glass Container --- */
+        .container {
+            text-align: center;
+            /* Greenish-Black Tint */
+            background: rgba(10, 30, 20, 0.65); 
+            backdrop-filter: blur(12px);
+            padding: 60px;
+            border-radius: 20px;
+            border: 1px solid rgba(100, 255, 150, 0.1); /* Subtle green border */
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            max-width: 800px;
+            width: 85%;
+            animation: slideIn 1s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* --- Font Style 1: COMING SOON (Gold Shimmer) --- */
+        .main-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 5rem;
+            text-transform: uppercase;
+            margin: 0;
+            letter-spacing: 3px;
+            
+            /* Gold Gradient matches Green well */
+            background: linear-gradient(to right, #cfc09f, #ffecb3, #c5a059, #ffecb3, #cfc09f);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            
+            animation: shine 4s linear infinite;
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        /* --- Font Style 2: Under Construction (Elegant) --- */
+        .sub-title {
+            font-family: 'Playfair Display', serif;
+            color: #e8f5e9; /* Very light mint white */
+            font-size: 2rem;
+            font-weight: 400;
+            font-style: italic;
+            margin-top: 15px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 0.3s;
+        }
+
+        /* --- Font Style 3: Description (Clean) --- */
+        .description {
+            font-family: 'Montserrat', sans-serif;
+            color: #a5d6a7; /* Light Green text */
+            font-size: 1rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-top: 25px;
+            margin-bottom: 40px; /* Space for the button below */
+            text-transform: uppercase;
+            
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 0.6s;
+        }
+
+        /* --- Button Styling (Centered Bottom) --- */
+        .back-btn {
+            display: inline-block;
+            text-decoration: none;
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 15px 40px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            
+            /* Button Animation entry */
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 0.9s;
+        }
+
+        .back-btn:hover {
+            background: #4caf50; /* Bright Green Hover */
+            border-color: #4caf50;
+            color: white;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.6); /* Green Glow */
+            transform: translateY(-3px);
+            cursor: pointer;
+        }
+
+        /* Animation Keyframes */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .main-title { font-size: 3rem; }
+            .sub-title { font-size: 1.5rem; }
+            .container { padding: 40px 20px; width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="main-title">COMING SOON.....</div>
+        
+        <h2 class="sub-title">This web page is under construction.<br>Will be uploaded soon.</h2>
+        
+        <p class="description">Please go back to the home page and check out other web pages.</p>
+
+        <a href="index.html" class="back-btn">&#8592; Back to Home Page</a>
+    </div>
+
+</body>
+</html>
