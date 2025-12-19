@@ -357,7 +357,52 @@
         .ss-bar-container { background: rgba(0,0,0,0.9); padding: 10px 20px; border-radius: 50px; display: flex; gap: 15px; align-items: center; border: 1px solid var(--primary); opacity: 0; pointer-events: none; transition: 0.3s; }
         .ss-bar-container.active { opacity: 1; pointer-events: all; }
         .timer-text { color: var(--primary); font-weight: bold; min-width: 130px; text-align: center; font-size: 1rem; }
+        .btn-lock-gold {
+            position: absolute;
+            top: 15px; /* Aligns with the top padding */
+            right: 40px; /* Positioned on the right side */
+            text-decoration: none;
+            padding: 10px 25px;
+            
+            /* Font & Colors */
+            font-family: 'Poppins', sans-serif; /* Matches your other buttons */
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #FFD700; /* Gold text to match 'Farewell 2024' */
+            border: 2px solid #FFD700;
+            background: rgba(26, 11, 46, 0.6); /* Semi-transparent dark purple */
+            border-radius: 50px;
+            
+            /* Effects */
+            z-index: 50;
+            backdrop-filter: blur(4px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+            
+            /* Animation */
+            animation: goldPulse 3s infinite ease-in-out;
+        }
 
+        /* Hover Effect */
+        .btn-lock-gold:hover {
+            background: #FFD700; /* Fills with Gold */
+            color: #2e003e; /* Text turns dark purple for contrast */
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.6), 0 0 50px rgba(255, 215, 0, 0.3);
+            transform: translateY(-3px) scale(1.05);
+            letter-spacing: 1px;
+        }
+
+        /* Golden Pulse Animation */
+        @keyframes goldPulse {
+            0% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.2); border-color: #FFD700; }
+            50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); border-color: #ffeeb0; }
+            100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.2); border-color: #FFD700; }
+        }
+
+        /* HIDE WHEN SLIDESHOW IS ACTIVE (Assuming you have this class logic) */
+        .container.slideshow-active .btn-lock-gold {
+            display: none;
+        }
         /* --- EXTRAS --- */
         .fullscreen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: none; justify-content: center; align-items: center; flex-direction: column; }
         .fullscreen-overlay.active { display: flex; }
@@ -401,6 +446,7 @@
         <section class="display-panel">
             <div class="confetti-layer" id="confetti-layer"></div>
             <a href="home.html" class="btn-home">← Back to HomePage</a>
+            <a href="index.html" class="btn-lock-gold">🔒Lock the Page</a>
             <div class="content-box" id="content-area"></div>
             <div class="ss-controls">
                 <div class="ss-bar-container" id="ss-bar">
@@ -665,3 +711,4 @@
 </body>
 
 </html>
+
