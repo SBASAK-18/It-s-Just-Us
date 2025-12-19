@@ -239,7 +239,20 @@
         .thumbnail-page.active { border-color: var(--primary); box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); background: rgba(0, 255, 255, 0.1); }
         
         .gallery-footer { padding: 20px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); flex-shrink: 0; }
-
+        #slider-caption {
+            position: absolute;
+            left: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-family: 'Dancing Script', cursive; /* Matches your other headings */
+            font-size: 4rem;
+            text-shadow: 2px 2px 4px #000;
+            z-index: 250; /* Above image, below controls */
+            pointer-events: none; /* Allows you to click "Prev" button through the text */
+            display: none; /* Hidden by default */
+        }
+        #slider-caption.visible { display: block; }
         /* Buttons */
         .styled-btn {
             background: linear-gradient(45deg, var(--secondary), var(--primary)); border: none;
@@ -273,7 +286,7 @@
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: rgba(0,0,0,0.9); padding: 8px 15px; border-radius: 50px;
             display: none; align-items: center; gap: 10px; border: 1px solid var(--primary);
-            z-index: 100; box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); backdrop-filter: blur(10px);
+            z-index: 300; box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); backdrop-filter: blur(10px);
         }
         .slideshow-controls.show { display: flex; animation: slideUp 0.5s ease; }
         @keyframes slideUp { from { transform: translate(-50%, 50px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
@@ -310,6 +323,7 @@
             
             <div class="image-slider-overlay" id="image-slider-overlay">
                 <button id="slider-close" onclick="closeSlider()">✖</button>
+                <h2 id="slider-caption"></h2>
                 <div class="slider-img-container">
                     <img src="" alt="Full View" id="slider-img" class="slider-img">
                 </div>
@@ -479,21 +493,29 @@
                 D.contentBox.classList.add('active');
                 
                 if (isSlideshowActive) {
-                    if (index === 7) { 
+                    // --- SMART LOGIC: Checks Type instead of Page Number ---
+
+                    // 1. If it's the Group Gallery (Durgapuja)
+                    // 1. If it's the Group Gallery (Durgapuja)
+                    if (pageData.type === 'group-gallery') {
                         imageCycleIndex = 0;
-                        collectAllGroupImages();
+                        collectAllGroupImages(index); 
                         openSlider(0);
-                        runSlideTimer(GLOBAL_DURATION, true);
+                        runSlideTimer(5000, true); // <--- CHANGED to 4000 (4 seconds)
                     } 
-                    else if (index === 9) {
+                    // 2. If it's the Fullscreen Slider (Random Clicks)
+                    else if (pageData.type === 'fullscreen-slider') {
                         imageCycleIndex = 0;
                         sliderImages = pageData.images;
                         openSlider(0);
-                        runSlideTimer(FAST_DURATION, true);
+                        runSlideTimer(FAST_DURATION, true); // Faster timer for random clicks
                     }
+                    // 3. If it's a Typing Page (Dialogue/Paragraph/List)
                     else if (pageData.type.includes('typing')) {
-                        // Wait for typing to finish
+                        // Do NOT start timer here. 
+                        // The timer will be started by the typeWriter function when typing finishes.
                     }
+                    // 4. Standard Pages (Image-Text)
                     else {
                         runSlideTimer(GLOBAL_DURATION, false);
                     }
@@ -501,11 +523,18 @@
             }, 300);
         }
 
-        function collectAllGroupImages() {
+        function collectAllGroupImages(targetIndex) {
+            let target = targetIndex !== undefined ? PRESENTATION_DATA[targetIndex] : PRESENTATION_DATA.find(p => p.type === 'group-gallery');
+            
             sliderImages = [];
-            PRESENTATION_DATA[8].groups.forEach(g => {
-                g.images.forEach(img => sliderImages.push(img));
-            });
+            if (target && target.groups) {
+                target.groups.forEach(g => {
+                    g.images.forEach(img => {
+                        // SAVE BOTH IMAGE AND NAME
+                        sliderImages.push({ src: img, caption: g.name }); 
+                    });
+                });
+            }
         }
 
         function changePage(direction) {
@@ -545,13 +574,20 @@
                 case 'group-gallery':
                     box.innerHTML = `<h1 class="main-heading">${pageData.title}</h1><div class="group-gallery" id="group-gallery"></div>`;
                     const gallery = document.getElementById('group-gallery');
-                    let imgCounter = 0;
-                    sliderImages = [];
+                    
+                    // Reset and rebuild sliderImages immediately so manual clicks work with captions
+                    sliderImages = []; 
+                    
                     pageData.groups.forEach(group => {
                         let groupHtml = `<div class="photo-group"><div class="group-title">${group.name}</div><div class="group-thumbnails">`;
                         group.images.forEach((img) => {
-                            groupHtml += `<img src="${img}" onclick="collectAllGroupImages(); openSlider(${sliderImages.length});" alt="${group.name}">`;
-                            sliderImages.push(img);
+                            // Push Object with Caption
+                            sliderImages.push({ src: img, caption: group.name });
+                            
+                            // Use the index of the item we just pushed (length - 1)
+                            let currentImgIndex = sliderImages.length - 1;
+                            
+                            groupHtml += `<img src="${img}" onclick="openSlider(${currentImgIndex})" alt="${group.name}">`;
                         });
                         groupHtml += `</div></div>`;
                         gallery.innerHTML += groupHtml;
@@ -682,7 +718,6 @@
             document.getElementById('btn-pause').innerText = 'Pause';
             selectPage(currentIndex, true);
         }
-
         function runSlideTimer(duration, isImageCycling) {
             let startTime = Date.now();
             clearInterval(progressInterval); clearTimeout(slideshowTimer);
@@ -690,18 +725,27 @@
             D.warningText.innerText = "";
 
             progressInterval = setInterval(() => {
-                if(isPaused) { startTime = Date.now() - (duration * (parseFloat(D.progressBar.style.width)/100)); return; }
+                if(isPaused) { 
+                    // Adjust start time so the bar doesn't jump when unpaused
+                    startTime = Date.now() - (duration * (parseFloat(D.progressBar.style.width)/100)); 
+                    return; 
+                }
                 
                 let elapsed = Date.now() - startTime;
                 let pct = (elapsed / duration) * 100;
                 D.progressBar.style.width = pct + '%';
 
                 let remaining = Math.ceil((duration - elapsed) / 1000);
+                
+                // --- NEW LOGIC FOR TEXT ---
                 if (remaining <= 5 && remaining > 0) {
-                    D.warningText.innerText = `Next image in ${remaining}...`;
+                    // If isImageCycling is true (Page 9 & 11), say "Next image", else "Next page"
+                    let msg = isImageCycling ? "Next image in" : "Next page in";
+                    D.warningText.innerText = `${msg} ${remaining}...`;
                 } else {
                     D.warningText.innerText = "";
                 }
+                // --------------------------
 
                 if(elapsed >= duration) {
                     clearInterval(progressInterval);
@@ -716,9 +760,9 @@
                             changePage(1);
                         }
                     } else {
-                        // CHECK IF LAST PAGE (ID:12, Index:11)
+                        // CHECK IF LAST PAGE (ID:12, Index:11) - Adjusted for your new page count
                         if (currentIndex >= PRESENTATION_DATA.length - 1) {
-                            stopSlideshow(); // Auto-Exit on Page 12 completion
+                            stopSlideshow(); 
                         } else {
                             changePage(1);
                         }
@@ -726,6 +770,8 @@
                 }
             }, 50);
         }
+        
+               
 
         function togglePause() {
             isPaused = !isPaused;
@@ -772,15 +818,33 @@
             }
             updateSliderImage();
         }
-        function updateSliderImage() { if (sliderImages.length > 0) D.sliderImg.src = sliderImages[sliderCurrentIndex]; }
-        document.addEventListener('keydown', function(e) {
-            // Check if the slideshow is NOT active (optional, remove check if you want it to work during slideshow too)
-            if (e.key === 'ArrowLeft') {
-                changePage(-1); // Left Arrow = Previous
-            } else if (e.key === 'ArrowRight') {
-                changePage(1);  // Right Arrow = Next
+        function updateSliderImage() {
+            if (sliderImages.length > 0) {
+                let item = sliderImages[sliderCurrentIndex];
+                let src = '';
+                let captionText = '';
+
+                // Check if item is a simple string (Page 11) or an object (Page 9)
+                if (typeof item === 'string') {
+                    src = item;
+                    captionText = ''; // No caption for random clicks
+                } else {
+                    src = item.src;
+                    captionText = item.caption; // "Saptami", "Astami", etc.
+                }
+
+                D.sliderImg.src = src;
+
+                // Handle Caption Display
+                const capEl = document.getElementById('slider-caption');
+                if (captionText) {
+                    capEl.innerText = captionText;
+                    capEl.classList.add('visible');
+                } else {
+                    capEl.classList.remove('visible');
+                }
             }
-        });
+        }
         function manageConfetti(active) {
             D.confettiLayer.innerHTML = '';
             if(!active) { D.confettiLayer.classList.remove('active'); return; }
@@ -802,4 +866,5 @@
 </body>
 
 </html>
+
 
