@@ -7,7 +7,7 @@
     <style>
         /* --- 1. FONTS & THEME --- */
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;700&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Dancing+Script:wght@700&family=Cinzel+Decorative:wght@700&display=swap');
         :root {
             --bg-gradient: linear-gradient(135deg, #f3e5f5 0%, #9575cd 100%); 
             --primary: #ec407a; 
@@ -252,7 +252,70 @@
         }
         @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-130vh) rotate(5deg); } }
         @keyframes fallDown { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
+        .btn-lock-magic {
+            position: absolute;
+            top: 20px;  /* Aligns with the Back button */
+            left: 260px; /* Places it beside the Back button */
+            text-decoration: none;
+            padding: 5px 15px;
+            
+            /* Font & Base Styles */
+            font-family: 'Dancing Script', cursive; /* Beautiful Cursive Font */
+            font-size: 1.3rem; /* Increased size for better readability */
+            font-weight: 700; /* Bold to make it pop */
+            letter-spacing: 1px;
+            color: #ff007f; /* Hot Pink text */
+            background: rgba(255, 255, 255, 0.25); /* Glassy background */
+            border: 2px solid #ff007f;
+            border-radius: 50px;
+            
+            /* Glass Effect */
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            box-shadow: 0 5px 15px rgba(255, 0, 127, 0.2);
+            
+            /* Transitions for Animation */
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Bouncy transition */
+            z-index: 100;
+            overflow: hidden; /* For the shine effect */
+        }
 
+        /* --- THE SPECIAL HOVER EFFECTS --- */
+        .btn-lock-magic:hover {
+            background: #ff007f; /* Button turns solid pink */
+            color: #fff; /* Text turns white */
+            
+            /* 1. Font Animation: Text stretches out */
+            letter-spacing: 3px; 
+            
+            /* 2. Glowing Effect */
+            box-shadow: 0 0 20px #ff007f, 0 0 40px rgba(255, 0, 127, 0.6);
+            border-color: transparent;
+            
+            /* 3. Scale Up */
+            transform: scale(1.05) translateY(-3px);
+        }
+
+        /* Shine Animation Bar (The sweeping light effect) */
+        .btn-lock-magic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            transition: none;
+        }
+
+        .btn-lock-magic:hover::before {
+            left: 100%; /* Moves across the button */
+            transition: 0.5s; /* Speed of the shine */
+        }
+        /* HIDE DURING SLIDESHOW */
+        .container.slideshow-active .btn-lock-magic {
+            display: none;
+        }
         /* --- FULLSCREEN --- */
         .fs-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -279,6 +342,7 @@
 
     <nav class="top-bar">
         <a href="home.html" class="home-btn">← Back to HomePage</a>
+        <a href="index.html" class="btn-lock-magic">🔒Lock the Page</a>
         <div class="nav-center" id="thumb-list"></div>
         <div class="slideshow-controls" id="ss-controls">
             <button class="btn-ss" id="play-btn" onclick="toggleSlideshow()">▶ Play Slideshow</button>
@@ -588,3 +652,4 @@
 </body>
 
 </html>
+
