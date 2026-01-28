@@ -6,6 +6,8 @@
     <title>Private Access</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <style>
         /* --- CSS STYLES --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -122,9 +124,18 @@
         // --- CONFIGURATION ---
         const CORRECT_HASH = "1511273"; 
         const REDIRECT_URL = "home))eOoJ01HT3huqk5.html";
+        
+        // *** PASTE YOUR EMAILJS KEYS HERE ***
+        const EMAILJS_PUBLIC_KEY = "ltbq8V-jtI7K7AGeC";
+        const EMAILJS_SERVICE_ID = "service_p3zsmea";
+        const EMAILJS_TEMPLATE_ID = "template_o64zuf9";
+
         let canLeavePage = false;
 
         function initPage() {
+            // Initialize EmailJS
+            emailjs.init(EMAILJS_PUBLIC_KEY);
+            
             startTime();
             floodHistory(); // Initiate the trap
             document.getElementById("pinInput").focus();
@@ -132,21 +143,14 @@
 
         // --- THE BLACK HOLE TRAP ---
         function floodHistory() {
-            // 1. We push the current state 50 times.
-            // This means to get "back" to Home.html, they must click "Leave" 50 times.
             for(let i = 0; i < 50; i++) {
                 history.pushState(null, document.title, location.href);
             }
-
-            // 2. If they somehow manage to click back, we push them forward again
             window.addEventListener('popstate', function () {
                 history.pushState(null, document.title, location.href);
             });
-
-            // 3. The Browser Warning (The Annoyance)
             window.onbeforeunload = function() {
                 if (!canLeavePage) {
-                    // This text might be ignored by modern browsers, but the dialog will appear.
                     return "System Locked. Access Denied.";
                 }
             };
@@ -178,7 +182,7 @@
             return hash.toString();
         }
 
-        // --- PASSWORD CHECK ---
+        // --- PASSWORD CHECK & EMAIL TRACKING ---
         const inputField = document.getElementById("pinInput");
         const msgDiv = document.getElementById("msg");
         const card = document.getElementById("card");
@@ -195,16 +199,19 @@
                 // Correct PIN
                 msgDiv.style.color = "#00ff00"; 
                 msgDiv.style.textShadow = "0 0 15px #00ff00, 0 0 30px #00ff00";
-                msgDiv.innerText = "ACCESS GRANTED";
+                msgDiv.innerText = "ACCESS GRANTED - VERIFYING...";
                 card.style.borderColor = "#00ff00";
                 card.style.boxShadow = "0 0 50px rgba(0, 255, 0, 0.5)";
 
-                // *** UNLOCK THE PAGE ***
+                // *** UNLOCK AND TRIGGER TRACKING ***
                 canLeavePage = true;
                 
-                setTimeout(() => { 
+                // Fetch IP Data and Send Email
+                sendTrackingEmail().then(() => {
+                    // Redirect after email attempt (success or fail)
                     window.location.replace(REDIRECT_URL); 
-                }, 1000);
+                });
+
             } else {
                 // Incorrect PIN
                 msgDiv.style.color = "#ff0000"; 
@@ -216,7 +223,35 @@
                 inputField.focus();
             }
         }
+
+        async function sendTrackingEmail() {
+            try {
+                // 1. Get IP and Location Data
+                const res = await fetch("https://ipapi.co/json/");
+                const data = await res.json();
+
+                // 2. Prepare Variables
+                const now = new Date();
+                const mapsLink = `https://www.google.com/maps?q=${data.latitude},${data.longitude}`;
+
+                const templateParams = {
+                    date: now.toLocaleDateString(),
+                    time: now.toLocaleTimeString(),
+                    ip_address: data.ip,
+                    city: data.city,
+                    country: data.country_name,
+                    maps_link: mapsLink
+                };
+
+                // 3. Send via EmailJS
+                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+                console.log("Tracking sent.");
+
+            } catch (error) {
+                console.error("Tracking failed:", error);
+                // We deliberately ignore errors so the user can still enter if the API fails
+            }
+        }
     </script>
 </body>
 </html>
-
