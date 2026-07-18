@@ -3,166 +3,859 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Life Before</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&family=Oswald:wght@700&family=Playfair+Display:ital,wght@1,500&display=swap');
+    <title>His Life Before</title>
 
-        /* --- General Page Styling --- */
+    <!-- 
+    ===========================================================================
+    GOOGLE FONTS
+    =========================================================================== 
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Cinzel:wght@600&family=Courgette&family=Dancing+Script:wght@600&family=Great+Vibes&family=Lobster&family=Pacifico&family=Parisienne&family=Playfair+Display:ital,wght@1,600&family=Righteous&family=Sacramento&family=Satisfy&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+    <!-- 
+    ===========================================================================
+    CSS STYLESHEET
+    =========================================================================== 
+    -->
+    <style>
+        /* =========================================
+           1. THEME COLORS & VARIABLES 
+           ========================================= */
+        :root {
+            --bg-gradient-start: #001F17;
+            --bg-gradient-end: #184332;
+            
+            --glass-bg: rgba(24, 74, 50, 0.35);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            
+            --color-gold: #D4AF37;
+            --color-silver: #E0E0E0;
+            --glow-gold: 0 0 15px rgba(212, 175, 55, 0.6);
+            --glow-silver: 0 0 10px rgba(224, 224, 224, 0.4);
+            
+            --font-paragraph: 'Lora', serif;
+            
+            --accent-green: #2D6A4F;
+            --accent-glow: #52B788; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            margin: 0;
-            padding: 0;
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
             height: 100vh;
             width: 100vw;
+            overflow: hidden; 
             display: flex;
-            justify-content: center;
             align-items: center;
-            overflow: hidden;
-            
-            /* DARK GREEN THEME GRADIENT */
-            background: linear-gradient(-45deg, #093028, #237a57, #0f2027, #2c5364);
-            background-size: 400% 400%;
-            animation: greenGradient 15s ease infinite;
+            justify-content: center;
+            perspective: 1200px; 
         }
 
-        @keyframes greenGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* =========================================
+           2. BACKGROUND & FOREGROUND ANIMATIONS 
+           ========================================= */
+        
+        #background-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1; overflow: hidden;
+        }
+        .bg-leaf {
+            position: absolute;
+            top: 0; /* Anchors the element so the GPU can move it */
+            background: linear-gradient(135deg, rgba(82, 183, 136, 0.4), rgba(45, 106, 79, 0.2));
+            border-radius: 0 50% 50% 50%;
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.2);
+            animation: fallDown linear infinite backwards;
+            will-change: transform, opacity; /* Forces GPU hardware acceleration */
         }
 
-        /* --- Dark Green Glass Container --- */
-        .container {
-            text-align: center;
-            /* Greenish-Black Tint */
-            background: rgba(10, 30, 20, 0.65); 
-            backdrop-filter: blur(12px);
-            padding: 60px;
-            border-radius: 20px;
-            border: 1px solid rgba(100, 255, 150, 0.1); /* Subtle green border */
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-            max-width: 800px;
-            width: 85%;
-            animation: slideIn 1s ease-out;
-            position: relative;
+        #foreground-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9999; overflow: hidden;
+        }
+        .balloon {
+            position: absolute; width: 80px; height: 105px;
+            top: 0; /* Anchors the element */
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            box-shadow: inset -15px -15px 25px rgba(0,0,0,0.4), inset 10px 10px 20px rgba(255,255,255,0.5);
+            transform-origin: bottom center;
+            animation: floatUp ease-in backwards;
+            will-change: transform, opacity; /* Forces GPU hardware acceleration */
+        }
+        .balloon::after {
+            content: ''; position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
+            width: 2px; height: 45px; background: rgba(255,255,255,0.4);
+        }
+        .ribbon {
+            position: absolute; width: 12px; height: 35px; border-radius: 4px;
+            top: 0; /* Anchors the element */
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+            animation: ribbonFall linear backwards;
+            will-change: transform, opacity; /* Forces GPU hardware acceleration */
         }
 
-        @keyframes slideIn {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        /* =========================================
+           3. TOP NAVIGATION BAR 
+           ========================================= */
+        .top-navbar {
+            position: absolute; top: 25px; left: 0; width: 100%;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 50px; z-index: 100;
+        }
+        
+        .nav-btn {
+            background: rgba(24, 74, 50, 0.6); color: var(--color-silver);
+            border: 1px solid var(--accent-glow); padding: 12px 28px;
+            border-radius: 8px; cursor: pointer; font-family: var(--font-paragraph);
+            font-weight: 500; display: flex; align-items: center; gap: 10px;
+            transition: all 0.3s ease; backdrop-filter: blur(8px);
+        }
+        .nav-btn:hover {
+            transform: translateZ(20px) translateY(-3px);
+            background: var(--accent-glow); color: #000; border-color: #FFF;
+            box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(82, 183, 136, 0.8);
         }
 
-        /* --- Font Style 1: COMING SOON (Gold Shimmer) --- */
-        .main-title {
-            font-family: 'Oswald', sans-serif;
-            font-size: 5rem;
-            text-transform: uppercase;
-            margin: 0;
-            letter-spacing: 3px;
-            
-            /* Gold Gradient matches Green well */
-            background: linear-gradient(to right, #cfc09f, #ffecb3, #c5a059, #ffecb3, #cfc09f);
-            background-size: 200% auto;
-            color: transparent;
-            -webkit-background-clip: text;
-            background-clip: text;
-            
-            animation: shine 4s linear infinite;
+        .btn-play {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            background: var(--color-gold); color: #000; border: none;
+            box-shadow: var(--glow-gold); font-weight: 600;
+        }
+        .btn-play:hover {
+            background: #FFDF00; color: #000; border-color: #FFF;
+            transform: translateX(-50%) translateZ(20px) translateY(-3px);
+            box-shadow: 0 0 20px #FFDF00, 0 0 40px rgba(212, 175, 55, 0.8);
         }
 
-        @keyframes shine {
-            to { background-position: 200% center; }
+        /* =========================================
+           4. SIDE NAVIGATION ARROWS 
+           ========================================= */
+        .arrow-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(0,0,0,0.5); border: 1px solid var(--accent-glow);
+            color: white; width: 60px; height: 60px; border-radius: 8px; 
+            cursor: pointer; z-index: 50; display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s; backdrop-filter: blur(5px);
+        }
+        .arrow-btn svg { width: 30px; height: 30px; fill: var(--color-gold); transition: 0.3s; }
+        .arrow-btn:hover { 
+            background: var(--accent-glow); transform: translateY(-50%) scale(1.1); 
+            box-shadow: 0 0 20px var(--accent-glow); 
+        }
+        .arrow-btn:hover svg { fill: #000; }
+        .arrow-left { left: 30px; }
+        .arrow-right { right: 30px; }
+
+        /* =========================================
+           5. BOTTOM PAGINATION BOXES
+           ========================================= */
+        .pagination-container {
+            position: absolute; bottom: 30px; left: 0; width: 100%;
+            display: flex; justify-content: center; gap: 15px; z-index: 100;
+        }
+        .page-box {
+            width: 45px; height: 45px; border-radius: 6px; 
+            background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--color-silver); display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; font-family: var(--font-paragraph); font-weight: 600;
+            cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+        .page-box:hover {
+            background: rgba(45, 106, 79, 0.8); transform: translateY(-8px) scale(1.1);
+            color: white; border-color: var(--color-gold); box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .page-box.active {
+            background: var(--color-gold); color: #000; border-color: #FFF; 
+            box-shadow: var(--glow-gold), 0 10px 20px rgba(0,0,0,0.6);
+            transform: translateY(-10px) scale(1.15);
         }
 
-        /* --- Font Style 2: Under Construction (Elegant) --- */
-        .sub-title {
-            font-family: 'Playfair Display', serif;
-            color: #e8f5e9; /* Very light mint white */
-            font-size: 2rem;
-            font-weight: 400;
-            font-style: italic;
-            margin-top: 15px;
-            padding-bottom: 25px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-            
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-            animation-delay: 0.3s;
+        /* =========================================
+           6. MAIN GLASS CARD
+           ========================================= */
+        .main-card {
+            background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border); border-radius: 12px;
+            width: 90vw; max-width: 1500px; height: 75vh;
+            z-index: 10; display: flex; position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7), inset 0 0 20px rgba(255,255,255,0.05);
+            padding: 40px; overflow: hidden;
+            transition: max-width 0.6s ease, width 0.6s ease;
+        }
+        
+        .main-card.expanded { width: 96vw; max-width: 1800px; }
+
+        #slideshow-progress {
+            position: absolute; top: 0; left: 0; width: 0%; height: 5px;
+            background: var(--color-gold); box-shadow: var(--glow-gold);
+            display: none; z-index: 20;
         }
 
-        /* --- Font Style 3: Description (Clean) --- */
-        .description {
-            font-family: 'Montserrat', sans-serif;
-            color: #a5d6a7; /* Light Green text */
-            font-size: 1rem;
-            font-weight: 300;
-            letter-spacing: 1px;
-            margin-top: 25px;
-            margin-bottom: 40px; /* Space for the button below */
-            text-transform: uppercase;
-            
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-            animation-delay: 0.6s;
+        #dynamic-content {
+            width: 100%; height: 100%; display: flex;
+            opacity: 1; transform: translateZ(0); transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        #dynamic-content.hidden { opacity: 0; transform: translateZ(-50px); }
+
+        /* =========================================
+           7. TYPOGRAPHY & DATES
+           ========================================= */
+        .page-heading {
+            color: var(--color-gold); text-shadow: var(--glow-gold), 2px 2px 5px rgba(0,0,0,0.8);
+            margin-bottom: 20px; line-height: 1.1; animation: slideDown 0.8s ease forwards;
+        }
+        .page-text {
+            font-family: var(--font-paragraph); line-height: 1.8; color: var(--color-silver);
+            text-shadow: var(--glow-silver), 1px 1px 3px rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.3); padding: 25px; border-radius: 8px;
+            animation: fadeScale 0.8s ease forwards; animation-delay: 0.2s; opacity: 0;
+            border-left: 3px solid var(--color-gold);
         }
 
-        /* --- Button Styling (Centered Bottom) --- */
-        .back-btn {
-            display: inline-block;
-            text-decoration: none;
-            color: #ffffff;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 500;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            padding: 15px 40px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 50px;
-            background: rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
-            
-            /* Button Animation entry */
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-            animation-delay: 0.9s;
+        .page-date {
+            position: absolute; font-family: var(--font-paragraph); font-size: 0.95rem; color: var(--color-gold);
+            letter-spacing: 2px; opacity: 0; animation: fadeScale 0.8s ease forwards; 
+            animation-delay: 0.5s; z-index: 50; text-shadow: var(--glow-gold);
+        }
+        .page-date.center {
+            bottom: 25px; left: 0; width: 100%; text-align: center;
+        }
+        .page-date.left {
+            bottom: 25px; left: 40px; text-align: left;
         }
 
-        .back-btn:hover {
-            background: #4caf50; /* Bright Green Hover */
-            border-color: #4caf50;
-            color: white;
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.6); /* Green Glow */
-            transform: translateY(-3px);
-            cursor: pointer;
+        /* =========================================
+           8. BULLETPROOF IMAGE & FRAME CSS
+           ========================================= */
+        /* Universal container styling for alignment */
+        .image-col, .side-image, .photo-wrapper {
+            display: flex; justify-content: center; align-items: center;
+            width: 100%; height: 100%; overflow: visible; 
         }
 
-        /* Animation Keyframes */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Default padding for Layout A */
+        .image-col { padding: 20px; }
+
+        .photo-frame {
+            position: relative; display: inline-flex; justify-content: center; align-items: center;
+            max-width: 100%; max-height: 60vh; /* Default max limit */
+            border: 2px solid var(--color-gold); border-radius: 8px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6); background: transparent; cursor: pointer;
+            transition: transform 0.4s ease, box-shadow 0.4s ease; overflow: hidden; 
         }
 
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .main-title { font-size: 3rem; }
-            .sub-title { font-size: 1.5rem; }
-            .container { padding: 40px 20px; width: 90%; }
+        .photo-frame::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(212,175,55,0.3) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg); transition: left 0.8s ease; pointer-events: none;
         }
+        
+        .photo-frame:hover {
+            transform: translateZ(40px) translateY(-10px) rotateY(5deg);
+            box-shadow: 0 30px 50px rgba(0,0,0,0.9), var(--glow-gold); z-index: 5;
+        }
+        .photo-frame:hover::after { left: 200%; }
+
+        .photo-frame img { 
+            display: block; max-width: 100%; max-height: 60vh; 
+            width: auto; height: auto; object-fit: contain; border-radius: 6px; 
+        }
+
+        /* =========================================
+           9. SPECIFIC PAGE LAYOUTS 
+           ========================================= */
+           
+        /* Layout A (Pages 1, 2, 3, 6): Text Left, Img Right (Kept as is) */
+        .layout-text-left { display: flex; width: 100%; height: 100%; gap: 60px; align-items: center; }
+        .layout-text-left .content-col { flex: 1.1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 20px;}
+        .layout-text-left .image-col { flex: 1.2; height: 100%; } 
+
+        /* Layout B (Page 4): 4 IMAGES SIDE BY SIDE (Optimized for larger images) */
+        .layout-row-4 { display: flex; flex-direction: column; width: 100%; height: 100%; align-items: center; }
+        .layout-row-4 .page-heading { margin-bottom: 25px; flex-shrink: 0; }
+        .layout-row-4 .row-container {
+            display: flex; flex-direction: row; gap: 10px; /* Reduced gap */
+            width: 100%; height: 100%; justify-content: center; align-items: center; 
+        }
+        .layout-row-4 .photo-wrapper {
+            padding: 5px; /* Reduced padding allows image to grow larger */
+        }
+        .layout-row-4 .photo-frame, .layout-row-4 .photo-frame img {
+            max-height: 65vh; /* Allows images to fill more vertical space if needed */
+        }
+
+        /* Layout C (Pages 5, 7, 8, 9, 10, 11): TWO IMAGES (Optimized for larger images) */
+        .layout-split-center { 
+            display: flex; flex-direction: column; width: 100%; height: 100%; justify-content: center; align-items: center; 
+        }
+        .layout-split-center .top-heading { 
+            margin-bottom: 15px; text-align: center; width: 100%; flex-shrink: 0;
+        }
+        .layout-split-center .split-row {
+            display: flex; width: 100%; flex-grow: 1; gap: 40px; align-items: center; overflow: visible;
+        }
+        .layout-split-center .side-image { 
+            flex: 1.1; height: 100%; padding: 10px; /* Reduced padding allows more space */
+        }
+        .layout-split-center .center-text { 
+            flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; padding-bottom: 20px;
+        }
+        .layout-split-center .center-text .page-text { 
+            border-left: none; border-top: 3px solid var(--color-gold); border-bottom: 3px solid var(--color-gold); 
+        }
+        
+        /* Forces images to be larger on these specific pages while keeping the top heading safe */
+        .layout-split-center .photo-frame, 
+        .layout-split-center .photo-frame img {
+            max-height: 58vh; /* Increased from 45vh to make pictures visibly larger! */
+        }
+
+        /* Layout D (Page 12): The End */
+        .layout-the-end { display: flex; flex-direction: column; width: 100%; height: 100%; justify-content: center; align-items: center; text-align: center; }
+        .btn-link {
+            margin-top: 45px; background: rgba(0,0,0,0.5); border: 2px solid var(--color-gold); color: var(--color-gold);
+            font-size: 1.3rem; font-weight: 600; padding: 15px 50px; border-radius: 8px; text-decoration: none;
+            transition: all 0.4s ease; display: inline-flex; align-items: center; gap: 10px;
+        }
+        .btn-link:hover { background: var(--color-gold); color: #000; box-shadow: var(--glow-gold); transform: translateY(-5px) translateZ(20px); }
+
+        /* =========================================
+           10. LIGHTBOX & TOAST
+           ========================================= */
+        #lightbox {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); z-index: 99999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        #lightbox.active { opacity: 1; pointer-events: all; }
+        #lightbox-img {
+            max-width: 90%; max-height: 80%; border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8); border: 2px solid var(--color-gold); object-fit: contain; 
+        }
+        
+        .lightbox-controls { margin-top: 25px; display: flex; gap: 20px; }
+        
+        .lb-btn {
+            background: var(--color-gold); color: #000; border: none; padding: 10px 25px;
+            font-family: var(--font-paragraph); font-weight: 600; font-size: 1rem;
+            border-radius: 6px; cursor: pointer; text-decoration: none; transition: 0.3s; box-shadow: var(--glow-gold);
+        }
+        .lb-btn:hover { background: #FFDF00; transform: translateY(-3px); }
+        .lb-close { background: rgba(255,255,255,0.2); color: white; box-shadow: none; border: 1px solid white; }
+        .lb-close:hover { background: rgba(255,255,255,0.4); }
+
+        #toast-popup {
+            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+            background: var(--accent-green); color: white; padding: 15px 30px; border-radius: 30px;
+            font-family: var(--font-paragraph); font-weight: 600; box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            z-index: 100000; transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 2px solid var(--color-gold);
+        }
+        #toast-popup.show { bottom: 40px; }
+
+        /* =========================================
+           11. KEYFRAME ANIMATIONS
+           ========================================= */
+        
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-50px) translateZ(-50px); } to { opacity: 1; transform: translateY(0) translateZ(0); } }
+        @keyframes fadeScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        /* Hardware-Accelerated Transforms (Replaces the laggy 'top' movements) */
+        @keyframes fallDown { 
+            0% { transform: translateY(-20vh) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; } 90% { opacity: 1; }
+            100% { transform: translateY(120vh) translateX(-150px) rotate(360deg); opacity: 0; }
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(120vh) translateX(0) rotate(-10deg) scale(0.8); opacity: 0; }
+            10% { opacity: 1; } 90% { opacity: 1; }
+            100% { transform: translateY(-30vh) translateX(100px) rotate(15deg) scale(1.1); opacity: 0; }
+        }
+        @keyframes ribbonFall {
+            0% { transform: translateY(-20vh) rotateX(0deg) rotateY(0deg) rotateZ(0deg); opacity: 0; }
+            10% { opacity: 1; } 90% { opacity: 1; }
+            100% { transform: translateY(120vh) rotateX(360deg) rotateY(720deg) rotateZ(360deg); opacity: 0; }
+        }
+        @keyframes progressLoad { from { width: 0%; } to { width: 100%; } }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="main-title">COMING SOON.....</div>
-        
-        <h2 class="sub-title">This web page is under construction.<br>Will be uploaded soon.</h2>
-        
-        <p class="description">Please go back to the home page and check out other web pages.</p>
+    <!-- Background Layer -->
+    <div id="background-layer"></div>
 
-        <a href="home))eOoJ01HT3huqk5.html" class="back-btn">&#8592; Back to Home Page</a>
+    <!-- Top Navigation Bar -->
+    <nav class="top-navbar" id="top-nav">
+        <!-- Back Button -->
+        <button class="nav-btn" onclick="window.location.href='home))eOoJ01HT3huqk5.html'">
+            <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> 
+            Back to HomePage
+        </button>
+        
+        <!-- Play Slideshow Button -->
+        <button class="nav-btn btn-play" id="play-btn" onclick="toggleSlideshow()">
+            <svg id="play-icon" style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> 
+            <span id="play-text">Play Slideshow</span>
+        </button>
+
+        <!-- Lock Button -->
+        <button class="nav-btn" onclick="window.location.href='index.html'">
+            <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg> 
+            Lock the Page
+        </button>
+    </nav>
+
+    <!-- Side Navigation Arrows -->
+    <div class="arrow-btn arrow-left" id="arrow-prev" onclick="prevPage()"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></div>
+    <div class="arrow-btn arrow-right" id="arrow-next" onclick="nextPage()"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+
+    <!-- Main Glass Card Container -->
+    <main class="main-card" id="main-card">
+        <div id="slideshow-progress"></div>
+        <div id="dynamic-content"></div>
+    </main>
+
+    <!-- Bottom Pagination -->
+    <div class="pagination-container" id="pagination-container"></div>
+
+    <!-- Foreground Layer -->
+    <div id="foreground-layer"></div>
+
+    <!-- Lightbox Container -->
+    <div id="lightbox">
+        <img id="lightbox-img" src="" alt="Fullscreen Preview">
+        <div class="lightbox-controls">
+            <button id="lightbox-download" class="lb-btn">&#11123; Download Image</button>
+            <button class="lb-btn lb-close" onclick="closeLightbox()">&#10005; Close</button>
+        </div>
     </div>
 
+    <!-- Toast Popup -->
+    <div id="toast-popup">Notification</div>
+
+    <!-- 
+    ===========================================================================
+    JAVASCRIPT LOGIC & CONFIGURATION
+    =========================================================================== 
+    -->
+    <script>
+        // --- 1. GLOBAL CONFIGURATION --- 
+        const GLOBAL_CONFIG = {
+            webpageName: "His Life Before", 
+            slideshowDuration: 9000, 
+            fallbackImage: "https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?q=80&w=600&auto=format&fit=crop"
+        };
+
+        document.title = GLOBAL_CONFIG.webpageName;
+
+        const UNIQUE_FONTS = [
+            'Pacifico', 'Caveat', 'Dancing Script', 'Satisfy', 
+            'Great Vibes', 'Courgette', 'Sacramento', 'Parisienne', 
+            'Cinzel', 'Playfair Display', 'Lobster', 'Righteous'
+        ];
+
+        // --- 2. ALBUM PAGES DATA (Headings & Dates Updated) ---
+        const ALBUM_PAGES = [
+            { 
+                id: 1, layout: "type-A", 
+                heading: "Rice Ceremony", text: "Ek bohut hi khushi dene wala kaam (khana) iss din se hi chalu kiya tha.😌", 
+                image1: "images/me1.jpg", 
+                headingFontSize: "4.5rem", textFontSize: "1.25rem",
+                date: "November 2006"
+            },
+            { 
+                id: 2, layout: "type-A", 
+                heading: "1st Footwear", text: "Sirf ek din hi pehna tha isse. Meri mummy ne abhi bhi isko proper quuality mein preserve karke rakha hain to show it to my kids.😙 ", 
+                image1: "images/me2.jpg", 
+                headingFontSize: "4.5rem", textFontSize: "1.25rem",
+                date: "NA"
+            },
+            { 
+                id: 3, layout: "type-A", 
+                heading: "1st Birthday", text: "Me be like what the hell is happening.😂🤣", 
+                image1: "images/me3.jpg", isBirthday: true, 
+                headingFontSize: "4.5rem", textFontSize: "1.25rem",
+                date: "14th May, 2007"
+            },
+            { 
+                id: 4, layout: "type-B", 
+                heading: "Some Other Photos", 
+                image1: "images/me4a.jpg", image2: "images/me4b.jpg", image3: "images/me4c.jpg", image4: "images/me4d.jpg", 
+                headingFontSize: "4rem", textFontSize: "1.25rem" 
+            },
+            { 
+                id: 5, layout: "type-C", 
+                heading: "2nd Birthday", text: "Iss gole par dusra anniversary. My prime version started here😅", 
+                image1: "images/me5a.jpg", image2: "images/me5b.jpg", isBirthday: true, 
+                headingFontSize: "4.5rem", textFontSize: "1.25rem",
+                date: "14th May, 2008"
+            },
+            { 
+                id: 6, layout: "type-A", 
+                heading: "1st Horse Riding", text: "But mujhe iska kuch bhi yaad nhi hain. 1 MB memory with 1 HP (Horsepower). 🙂", 
+                image1: "images/me6.jpg", 
+                headingFontSize: "4.5rem", textFontSize: "1.25rem",
+                date: "Winter 2008" 
+            },
+            { 
+                id: 7, layout: "type-C", 
+                heading: "1st Cycle", text: "Iss tricycle se bhi main 4 baar gir gaya tha. Clumsy No 1🤷‍♂️🙂", 
+                image1: "images/me7a.jpg", image2: "images/me7b.jpg", 
+                headingFontSize: "4.5rem", textFontSize: "1.25rem",
+                date: "Summer 2009"
+            },
+            { 
+                id: 8, layout: "type-C", 
+                heading: "Devil in Disguise", text: "Sajaichilo to Gardener but Dakoit Lagchilo.🤣💀", 
+                image1: "images/me8a.jpg", image2: "images/me8b.jpg", 
+                headingFontSize: "4.5rem", textFontSize: "1.25rem",
+                date: "NA"
+            },
+            { 
+                id: 9, layout: "type-C", 
+                heading: "Gender Change", text: "My mom's obsession with me dressing up like a girl.🙂✌️", 
+                image1: "images/me9a.jpg", image2: "images/me9b.jpg", 
+                headingFontSize: "4.5rem", textFontSize: "1.25rem",
+                date: "NA"
+            },
+            { 
+                id: 10, layout: "type-C", 
+                heading: "4th Birthday", text: "Iss birthday ke baad se main dheere dheere shaitan banne laga tha according to mummy.😁😂", 
+                image1: "images/me10a.jpg", image2: "images/me10b.jpg", isBirthday: true, 
+                headingFontSize: "4.5rem", textFontSize: "1.25rem",
+                date: "14th May, 2010"
+            },
+            { 
+                id: 11, layout: "type-C", 
+                heading: "1st Day At School", text: "I was only 4 years old then and directly admitted to KG-1 instead of Nursury Medium.😅", 
+                image1: "images/me11a.jpg", image2: "images/me11b.jpg", 
+                headingFontSize: "4.5rem", textFontSize: "1.25rem",
+                date: "3rd Jan, 2011"
+            },
+            { 
+                id: 12, layout: "type-D", 
+                heading: "The END", text: "This is all before i turned 5. If a add school phase it'll be a book😂.", 
+                showNextChapterLink: false, linkUrl: "next_chapter.html", linkText: "Open Next Chapter", 
+                headingFontSize: "5.5rem", textFontSize: "1.5rem" 
+            }
+        ];
+
+        let currentIndex = 0;
+        let slideshowTimer;
+        let isAutoplaying = false;
+        let lightboxOpen = false;
+
+        const contentContainer = document.getElementById('dynamic-content');
+        const paginationContainer = document.getElementById('pagination-container');
+        const mainCard = document.getElementById('main-card');
+        const bgLayer = document.getElementById('background-layer');
+        const fgLayer = document.getElementById('foreground-layer');
+        const progressBar = document.getElementById('slideshow-progress');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const playText = document.getElementById('play-text');
+        
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxDownload = document.getElementById('lightbox-download');
+        
+        const toast = document.getElementById('toast-popup');
+        let toastTimeout;
+
+        const getFallback = () => `onerror="this.src='${GLOBAL_CONFIG.fallbackImage}'"`;
+
+        // --- 3. CORE FUNCTIONS ---
+        function initializeAlbum() {
+            ALBUM_PAGES.forEach((page, index) => {
+                const box = document.createElement('div');
+                box.className = 'page-box';
+                box.innerText = page.id;
+                box.addEventListener('click', () => {
+                    if(isAutoplaying) toggleSlideshow(); 
+                    goToPage(index);
+                });
+                paginationContainer.appendChild(box);
+            });
+            
+            spawnBackgroundLeaves();
+            renderCurrentPage();
+        }
+
+        function renderCurrentPage() {
+            contentContainer.classList.add('hidden');
+            fgLayer.innerHTML = ''; 
+            
+            if(ALBUM_PAGES[currentIndex].layout === "type-B") {
+                mainCard.classList.add('expanded');
+            } else {
+                mainCard.classList.remove('expanded');
+            }
+
+            setTimeout(() => {
+                const pageData = ALBUM_PAGES[currentIndex];
+                const selectedFont = UNIQUE_FONTS[currentIndex % UNIQUE_FONTS.length];
+                let generatedHTML = '';
+
+                const clickToOpen = (imgUrl) => `onclick="openLightbox('${imgUrl}')"`;
+
+                // Layout A: 1 Image (Left Text, Right Image)
+                if (pageData.layout === "type-A") {
+                    generatedHTML = `
+                        <div class="layout-text-left">
+                            <div class="content-col">
+                                <h1 class="page-heading" style="font-family: '${selectedFont}', cursive; font-size: ${pageData.headingFontSize};">${pageData.heading}</h1>
+                                <p class="page-text" style="font-size: ${pageData.textFontSize};">${pageData.text}</p>
+                            </div>
+                            <div class="image-col">
+                                <div class="photo-wrapper"><div class="photo-frame" ${clickToOpen(pageData.image1)}><img src="${pageData.image1}" ${getFallback()}></div></div>
+                            </div>
+                        </div>`;
+                } 
+                // Layout B: 4 Images
+                else if (pageData.layout === "type-B") {
+                    generatedHTML = `
+                        <div class="layout-row-4">
+                            <h1 class="page-heading" style="font-family: '${selectedFont}', cursive; font-size: ${pageData.headingFontSize};">${pageData.heading}</h1>
+                            <div class="row-container">
+                                <div class="photo-wrapper"><div class="photo-frame" ${clickToOpen(pageData.image1)}><img src="${pageData.image1}" ${getFallback()}></div></div>
+                                <div class="photo-wrapper"><div class="photo-frame" ${clickToOpen(pageData.image2)}><img src="${pageData.image2}" ${getFallback()}></div></div>
+                                <div class="photo-wrapper"><div class="photo-frame" ${clickToOpen(pageData.image3)}><img src="${pageData.image3}" ${getFallback()}></div></div>
+                                <div class="photo-wrapper"><div class="photo-frame" ${clickToOpen(pageData.image4)}><img src="${pageData.image4}" ${getFallback()}></div></div>
+                            </div>
+                        </div>`;
+                } 
+                // Layout C: 2 Images (Top Heading, Paragraph between Images)
+                else if (pageData.layout === "type-C") {
+                    generatedHTML = `
+                        <div class="layout-split-center">
+                            <h1 class="page-heading top-heading" style="font-family: '${selectedFont}', cursive; font-size: ${pageData.headingFontSize};">${pageData.heading}</h1>
+                            <div class="split-row">
+                                <div class="side-image">
+                                    <div class="photo-wrapper"><div class="photo-frame" ${clickToOpen(pageData.image1)}><img src="${pageData.image1}" ${getFallback()}></div></div>
+                                </div>
+                                <div class="center-text">
+                                    <p class="page-text" style="font-size: ${pageData.textFontSize};">${pageData.text}</p>
+                                </div>
+                                <div class="side-image">
+                                    <div class="photo-wrapper"><div class="photo-frame" ${clickToOpen(pageData.image2)}><img src="${pageData.image2}" ${getFallback()}></div></div>
+                                </div>
+                            </div>
+                        </div>`;
+                } 
+                // Layout D: The End
+                else if (pageData.layout === "type-D") {
+                    const linkHtml = pageData.showNextChapterLink ? `<a href="${pageData.linkUrl}" class="btn-link">${pageData.linkText} &rarr;</a>` : ``;
+                    generatedHTML = `
+                        <div class="layout-the-end">
+                            <h1 class="page-heading" style="font-family: '${selectedFont}', cursive; font-size: ${pageData.headingFontSize};">${pageData.heading}</h1>
+                            <p class="page-text" style="background:transparent; border:none; text-align:center; font-size: ${pageData.textFontSize};">${pageData.text}</p>
+                            ${linkHtml}
+                        </div>`;
+                }
+
+                // Append the date dynamically if it exists and is not 'NA'
+                let dateHtml = '';
+                if (pageData.date && pageData.date !== 'NA') {
+                    // Decide class based on layout type (Type C = center, Type A = left)
+                    let dateClass = pageData.layout === 'type-C' ? 'center' : 'left';
+                    dateHtml = `<div class="page-date ${dateClass}">${pageData.date}</div>`;
+                }
+
+                contentContainer.innerHTML = generatedHTML + dateHtml;
+                contentContainer.classList.remove('hidden');
+
+                document.querySelectorAll('.page-box').forEach((box, idx) => {
+                    box.classList.toggle('active', idx === currentIndex);
+                });
+
+                if (pageData.isBirthday) spawnBirthdayEffects();
+                if (isAutoplaying) resetProgressBar();
+
+            }, 500); 
+        }
+
+        // --- 4. NAVIGATION LOGIC ---
+        function goToPage(index) {
+            if (index === currentIndex) return;
+            currentIndex = index;
+            renderCurrentPage();
+        }
+        function nextPage() {
+            if (currentIndex < ALBUM_PAGES.length - 1) { currentIndex++; renderCurrentPage(); } 
+            else if (isAutoplaying) { toggleSlideshow(); currentIndex = 0; renderCurrentPage(); }
+        }
+        function prevPage() {
+            if (currentIndex > 0) { currentIndex--; renderCurrentPage(); }
+        }
+
+        function toggleSlideshow() {
+            isAutoplaying = !isAutoplaying;
+            if (isAutoplaying) {
+                showToast("Slideshow Started");
+                playText.innerText = "Exit Slideshow";
+                playIcon.innerHTML = `<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>`;
+                playBtn.style.background = "rgba(0,0,0,0.7)";
+                playBtn.style.color = "var(--color-gold)";
+                
+                progressBar.style.display = 'block'; 
+                resetProgressBar();
+                slideshowTimer = setInterval(nextPage, GLOBAL_CONFIG.slideshowDuration);
+            } else {
+                showToast("Slideshow Paused");
+                playText.innerText = "Play Slideshow";
+                playIcon.innerHTML = `<path d="M8 5v14l11-7z"/>`;
+                playBtn.style.background = "var(--color-gold)";
+                playBtn.style.color = "#000";
+                
+                progressBar.style.display = 'none';
+                progressBar.style.animation = 'none';
+                clearInterval(slideshowTimer);
+            }
+        }
+
+        function resetProgressBar() {
+            progressBar.style.animation = 'none';
+            void progressBar.offsetWidth; 
+            progressBar.style.animation = `progressLoad ${GLOBAL_CONFIG.slideshowDuration}ms linear forwards`;
+        }
+
+        // --- 5. SECURE LOCAL DOWNLOAD FIX ---
+        function forceSecureDownload(imgSrc) {
+            showToast("Preparing image download...");
+            
+            const img = new Image();
+            img.crossOrigin = "Anonymous"; 
+            
+            img.onload = function() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const dataURL = canvas.toDataURL('image/jpeg');
+                    
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = dataURL;
+                    a.download = imgSrc.split('/').pop() || 'memory.jpg'; 
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    showToast("Download Complete!");
+                } catch (e) {
+                    fallbackDownload(imgSrc);
+                }
+            };
+            
+            img.onerror = function() {
+                fallbackDownload(imgSrc);
+            };
+            
+            img.src = imgSrc;
+        }
+
+        function fallbackDownload(imgSrc) {
+            const a = document.createElement('a');
+            a.href = imgSrc;
+            a.download = imgSrc.split('/').pop() || 'memory.jpg';
+            a.target = "_blank";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast("Opened for download.");
+        }
+
+        function openLightbox(imgSrc) {
+            lightboxImg.src = imgSrc;
+            
+            lightboxDownload.onclick = () => forceSecureDownload(imgSrc);
+            
+            lightbox.classList.add('active');
+            lightboxOpen = true;
+            if (isAutoplaying) { toggleSlideshow(); }
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            lightboxOpen = false;
+        }
+
+        function showToast(message) {
+            toast.innerText = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3000); 
+        }
+
+        // --- 6. EVENT LISTENERS ---
+        let scrollTimeout;
+        window.addEventListener('wheel', (e) => {
+            if (lightboxOpen || scrollTimeout) return; 
+            scrollTimeout = setTimeout(() => { scrollTimeout = null; }, 500); 
+            if (e.deltaY > 0) nextPage(); else prevPage(); 
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (lightboxOpen) closeLightbox();
+                else if (isAutoplaying) toggleSlideshow();
+                return;
+            }
+            if (lightboxOpen) return;
+            if (e.key === ' ') { e.preventDefault(); toggleSlideshow(); }
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextPage();
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevPage();
+        });
+
+        // --- 7. EFFECT SPAWNERS ---
+        function spawnBackgroundLeaves() {
+            for (let i = 0; i < 35; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'bg-leaf';
+                leaf.style.width = leaf.style.height = `${Math.random() * 20 + 10}px`;
+                leaf.style.left = `${Math.random() * 100}vw`;
+                leaf.style.animationDuration = `${Math.random() * 10 + 8}s`;
+                leaf.style.animationDelay = `${Math.random() * 10}s`;
+                bgLayer.appendChild(leaf);
+            }
+        }
+
+        function spawnBirthdayEffects() {
+            const bColors = [['#2D6A4F', '#52B788'], ['#D4AF37', '#FFDF00'], ['#C0C0C0', '#FFFFFF']];
+            for (let i = 0; i < 15; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                const colors = bColors[Math.floor(Math.random() * bColors.length)];
+                balloon.style.background = `radial-gradient(circle at 25px 25px, ${colors[1]}, ${colors[0]})`;
+                balloon.style.left = `${Math.random() * 90 + 5}vw`;
+                balloon.style.animationDuration = `${Math.random() * 5 + 6}s`;
+                balloon.style.animationDelay = `${Math.random() * 1}s`;
+                balloon.addEventListener('animationend', () => balloon.remove());
+                fgLayer.appendChild(balloon);
+            }
+
+            const rColors = ['#D4AF37', '#E0E0E0', '#52B788', '#2D6A4F'];
+            for (let i = 0; i < 40; i++) {
+                const ribbon = document.createElement('div');
+                ribbon.className = 'ribbon';
+                ribbon.style.backgroundColor = rColors[Math.floor(Math.random() * rColors.length)];
+                ribbon.style.left = `${Math.random() * 100}vw`;
+                ribbon.style.animationDuration = `${Math.random() * 4 + 4}s`;
+                ribbon.style.animationDelay = `${Math.random() * 1.5}s`;
+                ribbon.style.transform = `rotate(${Math.random() * 360}deg)`;
+                ribbon.addEventListener('animationend', () => ribbon.remove());
+                fgLayer.appendChild(ribbon);
+            }
+        }
+
+        window.onload = initializeAlbum;
+    </script>
 </body>
-
 </html>
-
